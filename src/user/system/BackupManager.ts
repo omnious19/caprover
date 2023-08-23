@@ -152,7 +152,7 @@ export default class BackupManager {
 
                 const configFilePathRestoring =
                     CaptainConstants.restoreDirectoryPath +
-                    '/data/config-captain.json'
+                    '/data/config-dockstationjson'
                 const configData: {
                     appDefinitions: IHashMapGeneric<IAppDefSaved>
                 } = fs.readJsonSync(configFilePathRestoring)
@@ -512,7 +512,7 @@ export default class BackupManager {
 
                         const configData = fs.readJsonSync(
                             CaptainConstants.restoreDirectoryPath +
-                                '/data/config-captain.json'
+                                '/data/config-dockstationjson'
                         )
 
                         Logger.d('Creating the restoration instruction file...')

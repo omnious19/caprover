@@ -1,7 +1,7 @@
 /*jshint esversion: 6 */
 
 const fs = require('fs-extra');
-const CONFIG_FILE_PATH = '/captain/data/config-captain.json';
+const CONFIG_FILE_PATH = '/captain/data/config-dockstationjson';
 
 const fileContent = JSON.parse(fs.readFileSync(CONFIG_FILE_PATH, {
     encoding: 'utf-8'

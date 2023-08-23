@@ -16,4 +16,4 @@ rm -rf ./temp-frontend/.git
 
 pwd
 
-sudo docker build -f dockerfile-captain.dev -t caprover-dev-image:0.0.1 .
+sudo docker build -f dockerfile-dockstationdev -t caprover-dev-image:0.0.1 .

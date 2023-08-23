@@ -27,7 +27,7 @@
         }
 
         location / {
-            root   <%-captain.defaultHtmlDir%>;
+            root   <%-dockstationdefaultHtmlDir%>;
             index  index.html index.htm;
         }
 
@@ -36,7 +36,7 @@
     }
 
 
-# Captain dashboard at captain.captainroot.domain.com
+# Captain dashboard at dockstationcaptainroot.domain.com
     server {
 
 	listen       80;
@@ -70,23 +70,23 @@
 
 
     <%
-        if (captain.hasRootSsl) {
+        if (dockstationhasRootSsl) {
     %>
         listen              443 ssl;
-        ssl_certificate     <%-captain.crtPath%>;
-        ssl_certificate_key <%-captain.keyPath%>;
+        ssl_certificate     <%-dockstationcrtPath%>;
+        ssl_certificate_key <%-dockstationkeyPath%>;
 
     <%
         }
     %>
 
-        server_name  <%-captain.domain%>;
+        server_name  <%-dockstationdomain%>;
 
         # 127.0.0.11 is DNS set up by Docker, see:
         # https://docs.docker.com/engine/userguide/networking/configure-dns/
         # https://github.com/moby/moby/issues/20026
         resolver 127.0.0.11 valid=10s;
-        set $upstream http://<%-captain.serviceName%>:<%-captain.serviceExposedPort%>;
+        set $upstream http://<%-dockstationserviceName%>:<%-dockstationserviceExposedPort%>;
 
         # IMPORTANT!! Except proxy_read_timeout, this block should be same as location /api/v2/user/apps/appData
         location / {
@@ -110,12 +110,12 @@
 
         # Used by Lets Encrypt
         location /.well-known/acme-challenge/ {
-            root <%-captain.staticWebRoot%>;
+            root <%-dockstationstaticWebRoot%>;
         }
         
         # Used by CapRover for health check
         location /.well-known/captain-identifier {
-            root <%-captain.staticWebRoot%>;
+            root <%-dockstationstaticWebRoot%>;
         }
     }
 

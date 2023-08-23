@@ -82,13 +82,13 @@ The main differences between the release and debug mode are:
 -   an additional endpoint is available at `/force-exit` which force restarts the backend service
 -   static resources (including front end app) are not being served in debug build.
 
-Captain by default uses `captain.localhost` as its root domain. It's not always needed, but if you need a root
+Captain by default uses `dockstationlocalhost` as its root domain. It's not always needed, but if you need a root
 domain for your development, you can simply run a local DNS server on your local machine and point
-`*.captain.localhost` (wild card domain) to your local IP. A simple `hosts` change won't be useful as we need a wildcard entry.
+`*.dockstationlocalhost` (wild card domain) to your local IP. A simple `hosts` change won't be useful as we need a wildcard entry.
 
 On ubuntu 16, it's as simple of editing this file:
 `/etc/NetworkManager/dnsmasq.d/dnsmasq-localhost.conf` (create if does not exist)
-And add this line to it: `address=/captain.localhost/192.168.1.2` where `192.168.1.2` is your local IP address.
+And add this line to it: `address=/dockstationlocalhost/192.168.1.2` where `192.168.1.2` is your local IP address.
 To make sure you have dnsmasq, you can run `which dnsmasq` on your terminal, if it's available,
 path of it will be printed on the terminal, otherwise, there won't be anything printed on your terminal.
 

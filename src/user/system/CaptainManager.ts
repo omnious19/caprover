@@ -782,7 +782,7 @@ class CaptainManager {
         const self = this
         // Some DNS servers do not allow wild cards. Therefore this line may fail.
         // We still allow users to specify the domains in their DNS settings individually
-        // SubDomains that need to be added are "captain." "registry." "app-name."
+        // SubDomains that need to be added are "dockstation" "registry." "app-name."
         const url = `${uuid()}.${requestedCustomDomain}:${
             CaptainConstants.nginxPortNumber
         }`

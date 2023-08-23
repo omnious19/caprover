@@ -50,8 +50,8 @@ sleepWithTimer 6
 echo "{
         \"namespace\": \"captain\",
         \"customDomain\": \"${CAPROVER_ROOT_DOMAIN}\"
-}" > /captain/data/config-captain.json
-cat /captain/data/config-captain.json
+}" > /captain/data/config-dockstationjson
+cat /captain/data/config-dockstationjson
 echo  "{\"skipVerifyingDomains\":\"true\"}" >  /captain/data/config-override.json
 docker container prune --force
 docker service scale captain-captain=1
@@ -80,7 +80,7 @@ echo " "
 echo "==================================="
 echo "==================================="
 echo " **** Installation is done! *****  "
-echo "CapRover is available at http://captain.${CAPROVER_ROOT_DOMAIN}"
+echo "CapRover is available at http://dockstation${CAPROVER_ROOT_DOMAIN}"
 echo "Default password is: captain42"
 echo "==================================="
 echo "==================================="

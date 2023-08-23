@@ -188,7 +188,7 @@ Fixed:
 
 -   Removal of Ports and Volumes (https://github.com/caprover/caprover/issues/355)
 -   Not saving SMTP if username is not provided (some password managers autofill password field!)
--   Fixed deploy when some version are manually removed from `config-captain.json` file.
+-   Fixed deploy when some version are manually removed from `config-dockstationjson` file.
 
 Donation campaign launched ❤
 https://opencollective.com/caprover#backer
@@ -410,7 +410,7 @@ A major release!! 🎉🎉
 **New Features:**
 
 -   Support for Persistent Data:
-    Previously, Captain only had support for apps with no persistent. The main drawback was that one could not deploy a database using Captain. Now the feature is fully supported.
+    Previously, Captain only had support for apps with no persistent. The main drawback was that one could not deploy a database using dockstation Now the feature is fully supported.
 -   One-click apps:
     This is perhaps the most interesting feature of new release. Although adding support for persistent data, technically speaking, was enough for the developers to deploy databases. But wouldn't it be nicer if installing MySql, MongoDB and etc becomes as easy as selecting a name from a list? :wink: Done! Not only that, off-the-shelf apps are being slowly added to this list. Installing WordPress, Parse-Server, Tumbor is now as easy as installing apps on your phone!
 

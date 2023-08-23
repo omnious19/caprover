@@ -160,11 +160,11 @@ class CertbotManager {
     Expiry Date: 2019-03-25 04:56:45+00:00 (VALID: 84 days)
     Certificate Path: /etc/letsencrypt/live/registry.cp.hm.caprover.com/fullchain.pem
     Private Key Path: /etc/letsencrypt/live/registry.cp.hm.caprover.com/privkey.pem
-  Certificate Name: captain.cp.hm.caprover.com
-    Domains: captain.cp.hm.caprover.com
+  Certificate Name: dockstationcp.hm.caprover.com
+    Domains: dockstationcp.hm.caprover.com
     Expiry Date: 2019-03-20 22:25:50+00:00 (VALID: 80 days)
-    Certificate Path: /etc/letsencrypt/live/captain.cp.hm.caprover.com/fullchain.pem
-    Private Key Path: /etc/letsencrypt/live/captain.cp.hm.caprover.com/privkey.pem
+    Certificate Path: /etc/letsencrypt/live/dockstationcp.hm.caprover.com/fullchain.pem
+    Private Key Path: /etc/letsencrypt/live/dockstationcp.hm.caprover.com/privkey.pem
   Certificate Name: testing2.cp.hm.caprover.com
     Domains: testing2.cp.hm.caprover.com
     Expiry Date: 2019-03-21 18:42:55+00:00 (VALID: 81 days)

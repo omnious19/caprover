@@ -9,7 +9,7 @@ pwd > currentdirectory
 docker service rm $(docker service ls -q)
 sleep 1s
 docker secret rm captain-salt
-docker build -t captain-debug -f dockerfile-captain.debug .
+docker build -t captain-debug -f dockerfile-dockstationdebug .
 rm -rf /captain && mkdir /captain
 chmod -R 777 /captain
 docker run \

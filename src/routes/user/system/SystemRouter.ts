@@ -89,7 +89,7 @@ router.post('/enablessl/', function (req, res, next) {
     CaptainManager.get()
         .enableSsl(emailAddress)
         .then(function () {
-            // This is necessary as the CLI immediately tries to connect to https://captain.root.com
+            // This is necessary as the CLI immediately tries to connect to https://dockstationroot.com
             // Without this delay it'll fail to connect
             Logger.d('Waiting for 7 seconds...')
             return Utils.getDelayedPromise(7000)

@@ -1232,7 +1232,7 @@ class DockerApi {
      *    {
      *        username: 'someuser
      *        password: 'password'
-     *        serveraddress: 'registry.captain.com:996'
+     *        serveraddress: 'registry.dockstationcom:996'
      *    }
      * ]
      * @param instanceCount: String '12' or null

@@ -23,7 +23,7 @@ const NGINX_CAPTAIN_CONFIG = 'nginxCaptainConfig'
 const CUSTOM_ONE_CLICK_APP_URLS = 'oneClickAppUrls'
 const FEATURE_FLAGS = 'featureFlags'
 
-const DEFAULT_CAPTAIN_ROOT_DOMAIN = 'captain.localhost'
+const DEFAULT_CAPTAIN_ROOT_DOMAIN = 'dockstationlocalhost'
 
 const DEFAULT_NGINX_BASE_CONFIG = fs
     .readFileSync(__dirname + '/../../template/base-nginx-conf.ejs')

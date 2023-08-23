@@ -1,16 +1,16 @@
 import ApiStatusCodes from '../../api/ApiStatusCodes'
 import DockerApi from '../../docker/DockerApi'
-import CaptainConstants from '../../utils/CaptainConstants'
+import DockStationConstants from '../../utils/DockStationConstants'
 import Logger from '../../utils/Logger'
 import Utils from '../../utils/Utils'
 import fs = require('fs-extra')
 
-const WEBROOT_PATH_IN_CERTBOT = '/captain-webroot'
-const WEBROOT_PATH_IN_CAPTAIN =
-    CaptainConstants.captainStaticFilesDir +
-    CaptainConstants.nginxDomainSpecificHtmlDir
+const WEBROOT_PATH_IN_CERTBOT = '/dockstation-webroot'
+const WEBROOT_PATH_IN_DOCKSTATION =
+    DockStationConstants.dockstationStaticFilesDir +
+    DockStationConstants.nginxDomainSpecificHtmlDir
 
-const shouldUseStaging = false // CaptainConstants.isDebug;
+const shouldUseStaging = false // DockStationConstants.isDebug;
 
 class CertbotManager {
     private isOperationInProcess: boolean
@@ -229,7 +229,7 @@ class CertbotManager {
             const nonInterActiveCommand = [...cmd, '--non-interactive']
             return dockerApi
                 .executeCommand(
-                    CaptainConstants.certbotServiceName,
+                    DockStationConstants.certbotServiceName,
                     nonInterActiveCommand
                 )
                 .then(function (data) {
@@ -247,7 +247,7 @@ class CertbotManager {
     ensureDomainHasDirectory(domainName: string) {
         return Promise.resolve() //
             .then(function () {
-                return fs.ensureDir(`${WEBROOT_PATH_IN_CAPTAIN}/${domainName}`)
+                return fs.ensureDir(`${WEBROOT_PATH_IN_DOCKSTATION}/${domainName}`)
             })
     }
 
@@ -295,8 +295,8 @@ class CertbotManager {
 
             return dockerApi
                 .createServiceOnNodeId(
-                    CaptainConstants.certbotImageName,
-                    CaptainConstants.certbotServiceName,
+                    DockStationConstants.certbotImageName,
+                    DockStationConstants.certbotServiceName,
                     undefined,
                     nodeId,
                     undefined,
@@ -311,30 +311,30 @@ class CertbotManager {
 
         return Promise.resolve()
             .then(function () {
-                return fs.ensureDir(CaptainConstants.letsEncryptEtcPath)
+                return fs.ensureDir(DockStationConstants.letsEncryptEtcPath)
             })
             .then(function () {
-                return fs.ensureDir(CaptainConstants.letsEncryptLibPath)
+                return fs.ensureDir(DockStationConstants.letsEncryptLibPath)
             })
             .then(function () {
-                return fs.ensureDir(WEBROOT_PATH_IN_CAPTAIN)
+                return fs.ensureDir(WEBROOT_PATH_IN_DOCKSTATION)
             })
             .then(function () {
                 return dockerApi.isServiceRunningByName(
-                    CaptainConstants.certbotServiceName
+                    DockStationConstants.certbotServiceName
                 )
             })
             .then(function (isRunning) {
                 if (isRunning) {
-                    Logger.d('Captain Certbot is already running.. ')
+                    Logger.d('DockStation Certbot is already running.. ')
 
                     return dockerApi.getNodeIdByServiceName(
-                        CaptainConstants.certbotServiceName,
+                        DockStationConstants.certbotServiceName,
                         0
                     )
                 } else {
                     Logger.d(
-                        'No Captain Certbot service is running. Creating one...'
+                        'No DockStation Certbot service is running. Creating one...'
                     )
 
                     return createCertbotServiceOnNode(myNodeId) //
@@ -346,12 +346,12 @@ class CertbotManager {
             .then(function (nodeId) {
                 if (nodeId !== myNodeId) {
                     Logger.d(
-                        'Captain Certbot is running on a different node. Removing...'
+                        'DockStation Certbot is running on a different node. Removing...'
                     )
 
                     return dockerApi
                         .removeServiceByName(
-                            CaptainConstants.certbotServiceName
+                            DockStationConstants.certbotServiceName
                         )
                         .then(function () {
                             Logger.d('Waiting for Certbot to be removed...')
@@ -372,19 +372,19 @@ class CertbotManager {
                 Logger.d('Updating Certbot service...')
 
                 return dockerApi.updateService(
-                    CaptainConstants.certbotServiceName,
-                    CaptainConstants.certbotImageName,
+                    DockStationConstants.certbotServiceName,
+                    DockStationConstants.certbotImageName,
                     [
                         {
-                            hostPath: CaptainConstants.letsEncryptEtcPath,
+                            hostPath: DockStationConstants.letsEncryptEtcPath,
                             containerPath: '/etc/letsencrypt',
                         },
                         {
-                            hostPath: CaptainConstants.letsEncryptLibPath,
+                            hostPath: DockStationConstants.letsEncryptLibPath,
                             containerPath: '/var/lib/letsencrypt',
                         },
                         {
-                            hostPath: WEBROOT_PATH_IN_CAPTAIN,
+                            hostPath: WEBROOT_PATH_IN_DOCKSTATION,
                             containerPath: WEBROOT_PATH_IN_CERTBOT,
                         },
                     ],

@@ -26,7 +26,7 @@
               "var jsonData = JSON.parse(responseBody);",
               "tests[\"Your test name\"] = jsonData.status === 100;",
               "",
-              "postman.setGlobalVariable(\"captain_auth_token\", jsonData.data.token);",
+              "postman.setGlobalVariable(\"dockstation_auth_token\", jsonData.data.token);",
               ""
             ],
             "type": "text/javascript"
@@ -42,7 +42,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "body": {
@@ -50,7 +50,7 @@
           "urlencoded": [
             {
               "key": "password",
-              "value": "captain42",
+              "value": "dockstation42",
               "type": "text"
             }
           ]
@@ -86,8 +86,8 @@
         "method": "POST",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -95,12 +95,12 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"oldPassword\": \"captain42\",\n    \"newPassword\": \"captain4242\"\n}"
+          "raw": "{\n    \"oldPassword\": \"dockstation42\",\n    \"newPassword\": \"dockstation4242\"\n}"
         },
         "url": {
           "raw": "{{baseUrl}}/user/changepassword",
@@ -116,8 +116,8 @@
         "method": "POST",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -125,7 +125,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "body": {
@@ -141,13 +141,13 @@
       "response": []
     },
     {
-      "name": "POST Enable SSL Captain",
+      "name": "POST Enable SSL DockStation",
       "request": {
         "method": "POST",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -155,7 +155,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "body": {
@@ -176,8 +176,8 @@
         "method": "POST",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -185,7 +185,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "body": {
@@ -206,8 +206,8 @@
         "method": "POST",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -215,12 +215,12 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"nodeType\": \"worker\",\n    \"privateKey\": \"-----BEGIN RSA PRIVATE KEY-----\\xxxxxxxxxxxxxxxxxx\\n-----END RSA PRIVATE KEY-----\",\n    \"captainIpAddress\": \"200.200.200.200\",\n    \"remoteNodeIpAddress\": \"100.100.100.100\",\n    \"remoteUserName\": \"root\"\n}"
+          "raw": "{\n    \"nodeType\": \"worker\",\n    \"privateKey\": \"-----BEGIN RSA PRIVATE KEY-----\\xxxxxxxxxxxxxxxxxx\\n-----END RSA PRIVATE KEY-----\",\n    \"dockstationIpAddress\": \"200.200.200.200\",\n    \"remoteNodeIpAddress\": \"100.100.100.100\",\n    \"remoteUserName\": \"root\"\n}"
         },
         "url": {
           "raw": "{{baseUrl}}/user/system/nodes",
@@ -236,8 +236,8 @@
         "method": "GET",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -245,7 +245,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "url": {
@@ -262,8 +262,8 @@
         "method": "GET",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -271,7 +271,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "url": {
@@ -288,8 +288,8 @@
         "method": "POST",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -297,7 +297,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "body": {
@@ -318,8 +318,8 @@
         "method": "POST",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -327,7 +327,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "body": {
@@ -348,8 +348,8 @@
         "method": "GET",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -357,7 +357,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "url": {
@@ -374,8 +374,8 @@
         "method": "GET",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -383,7 +383,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "url": {
@@ -410,8 +410,8 @@
         "method": "GET",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -419,7 +419,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "url": {
@@ -436,8 +436,8 @@
         "method": "GET",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -445,7 +445,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "url": {
@@ -462,8 +462,8 @@
         "method": "GET",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -471,7 +471,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "url": {
@@ -488,8 +488,8 @@
         "method": "POST",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -497,7 +497,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "url": {
@@ -514,8 +514,8 @@
         "method": "GET",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -523,7 +523,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "url": {
@@ -535,7 +535,7 @@
       "response": []
     },
     {
-      "name": "GET captainInfo",
+      "name": "GET dockstationInfo",
       "event": [
         {
           "listen": "prerequest",
@@ -549,8 +549,8 @@
         "method": "GET",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -558,7 +558,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "url": {
@@ -584,8 +584,8 @@
         "method": "GET",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -593,7 +593,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "url": {
@@ -610,8 +610,8 @@
         "method": "GET",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -619,7 +619,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "url": {
@@ -636,8 +636,8 @@
         "method": "POST",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -645,7 +645,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "body": {
@@ -666,8 +666,8 @@
         "method": "POST",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -675,7 +675,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "body": {
@@ -696,8 +696,8 @@
         "method": "POST",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -705,7 +705,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "body": {
@@ -726,8 +726,8 @@
         "method": "POST",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -735,7 +735,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "body": {
@@ -756,8 +756,8 @@
         "method": "POST",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -765,7 +765,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "body": {
@@ -786,8 +786,8 @@
         "method": "POST",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -795,7 +795,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "body": {
@@ -816,8 +816,8 @@
         "method": "POST",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -825,7 +825,7 @@
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "body": {
@@ -846,12 +846,12 @@
         "method": "POST",
         "header": [
           {
-            "key": "x-captain-auth",
-            "value": "{{captain_auth_token}}"
+            "key": "x-dockstation-auth",
+            "value": "{{dockstation_auth_token}}"
           },
           {
             "key": "x-namespace",
-            "value": "captain"
+            "value": "dockstation"
           }
         ],
         "body": {

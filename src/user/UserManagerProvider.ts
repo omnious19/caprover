@@ -1,5 +1,5 @@
 import ApiStatusCodes from '../api/ApiStatusCodes'
-import CaptainConstants from '../utils/CaptainConstants'
+import DockStationConstants from '../utils/DockStationConstants'
 import { UserManager } from './UserManager'
 
 const cache: IHashMapGeneric<UserManager> = {}
@@ -10,7 +10,7 @@ export class UserManagerProvider {
             throw new Error('NameSpace is empty')
         }
 
-        if (namespace !== CaptainConstants.rootNameSpace) {
+        if (namespace !== DockStationConstants.rootNameSpace) {
             throw ApiStatusCodes.createError(
                 ApiStatusCodes.STATUS_ERROR_GENERIC,
                 'Namespace unknown'

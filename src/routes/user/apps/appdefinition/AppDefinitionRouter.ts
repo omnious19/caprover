@@ -2,17 +2,17 @@ import express = require('express')
 import ApiStatusCodes from '../../../../api/ApiStatusCodes'
 import BaseApi from '../../../../api/BaseApi'
 import InjectionExtractor from '../../../../injection/InjectionExtractor'
-import { CaptainError } from '../../../../models/OtherTypes'
-import CaptainConstants from '../../../../utils/CaptainConstants'
+import { DockStationError } from '../../../../models/OtherTypes'
+import DockStationConstants from '../../../../utils/DockStationConstants'
 import Logger from '../../../../utils/Logger'
 import Utils from '../../../../utils/Utils'
 
 const router = express.Router()
 
-const DEFAULT_APP_CAPTAIN_DEFINITION = JSON.stringify({
+const DEFAULT_APP_DOCKSTATION_DEFINITION = JSON.stringify({
     schemaVersion: 2,
     dockerfileLines: [
-        `FROM ${CaptainConstants.configs.appPlaceholderImageName}`,
+        `FROM ${DockStationConstants.configs.appPlaceholderImageName}`,
     ],
 })
 
@@ -94,7 +94,7 @@ router.get('/', function (req, res, next) {
             baseApi.data = {
                 appDefinitions: appsArray,
                 rootDomain: dataStore.getRootDomain(),
-                captainSubDomain: CaptainConstants.configs.captainSubDomain,
+                dockstationSubDomain: DockStationConstants.configs.dockstationSubDomain,
                 defaultNginxConfig: defaultNginxConfig,
             }
 
@@ -208,9 +208,9 @@ router.post('/register/', function (req, res, next) {
             const promiseToIgnore = serviceManager.scheduleDeployNewVersion(
                 appName,
                 {
-                    captainDefinitionContentSource: {
-                        captainDefinitionContent:
-                            DEFAULT_APP_CAPTAIN_DEFINITION,
+                    dockstationDefinitionContentSource: {
+                        dockstationDefinitionContent:
+                            DEFAULT_APP_DOCKSTATION_DEFINITION,
                         gitHash: '',
                     },
                 }
@@ -224,7 +224,7 @@ router.post('/register/', function (req, res, next) {
                 new BaseApi(ApiStatusCodes.STATUS_OK, 'App Definition Saved')
             )
         })
-        .catch(function (error: CaptainError) {
+        .catch(function (error: DockStationError) {
             function createRejectionPromise() {
                 return new Promise<void>(function (resolve, reject) {
                     reject(error)
@@ -313,8 +313,8 @@ router.post('/update/', function (req, res, next) {
 
     const appName = req.body.appName
     const nodeId = req.body.nodeId
-    const captainDefinitionRelativeFilePath =
-        req.body.captainDefinitionRelativeFilePath
+    const dockstationDefinitionRelativeFilePath =
+        req.body.dockstationDefinitionRelativeFilePath
     const notExposeAsWebApp = req.body.notExposeAsWebApp
     const tags = req.body.tags || []
     const customNginxConfig = req.body.customNginxConfig
@@ -388,7 +388,7 @@ router.post('/update/', function (req, res, next) {
             appName,
             description,
             Number(instanceCount),
-            captainDefinitionRelativeFilePath,
+            dockstationDefinitionRelativeFilePath,
             envVars,
             volumes,
             tags,

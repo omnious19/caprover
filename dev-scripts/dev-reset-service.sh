@@ -5,6 +5,6 @@ if ! [ $(id -u) = 0 ]; then
    exit 1
 fi
 
-sudo docker service update captain-captain --force
+sudo docker service update dockstation-dockstation --force
 sleep 2s
-sudo docker service logs captain-captain --follow --since 2m
+sudo docker service logs dockstation-dockstation --follow --since 2m

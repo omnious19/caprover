@@ -1,5 +1,5 @@
 import ApiStatusCodes from '../api/ApiStatusCodes'
-import CaptainConstants from '../utils/CaptainConstants'
+import DockStationConstants from '../utils/DockStationConstants'
 import Logger from '../utils/Logger'
 import DockerApi from './DockerApi'
 import SshClientImport = require('ssh2')
@@ -10,7 +10,7 @@ export default class DockerUtils {
         dockerApi: DockerApi,
         sshUser: string,
         sshPort: number,
-        captainIpAddress: string,
+        dockstationIpAddress: string,
         isManager: boolean,
         remoteNodeIpAddress: string,
         privateKey: string
@@ -37,9 +37,9 @@ export default class DockerUtils {
                             Logger.d('SSH Client :: ready')
                             conn.exec(
                                 `${
-                                    CaptainConstants.disableFirewallCommand
+                                    DockStationConstants.disableFirewallCommand
                                 } ${dockerApi.createJoinCommand(
-                                    captainIpAddress,
+                                    dockstationIpAddress,
                                     token,
                                     remoteNodeIpAddress
                                 )}`,

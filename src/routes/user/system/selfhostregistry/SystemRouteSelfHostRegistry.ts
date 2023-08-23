@@ -4,15 +4,15 @@ import ApiStatusCodes from '../../../../api/ApiStatusCodes'
 import BaseApi from '../../../../api/BaseApi'
 import InjectionExtractor from '../../../../injection/InjectionExtractor'
 import { IRegistryTypes } from '../../../../models/IRegistryInfo'
-import CaptainManager from '../../../../user/system/CaptainManager'
-import CaptainConstants from '../../../../utils/CaptainConstants'
+import DockStationManager from '../../../../user/system/DockStationManager'
+import DockStationConstants from '../../../../utils/DockStationConstants'
 import Logger from '../../../../utils/Logger'
 
 const router = express.Router()
 
 // ERRORS if a local already exists in DB
 router.post('/enableregistry/', function (req, res, next) {
-    const captainManager = CaptainManager.get()
+    const dockstationManager = DockStationManager.get()
     const password = uuid()
     const registryHelper =
         InjectionExtractor.extractUserFromInjected(
@@ -21,10 +21,10 @@ router.post('/enableregistry/', function (req, res, next) {
 
     return Promise.resolve()
         .then(function () {
-            return CaptainManager.get().getDockerRegistry().enableRegistrySsl()
+            return DockStationManager.get().getDockerRegistry().enableRegistrySsl()
         })
         .then(function () {
-            return captainManager
+            return dockstationManager
                 .getDockerRegistry()
                 .ensureDockerRegistryRunningOnThisNode(password)
         })
@@ -41,8 +41,8 @@ router.post('/enableregistry/', function (req, res, next) {
                     )
                 }
             }
-            const user = CaptainConstants.captainRegistryUsername
-            const domain = captainManager
+            const user = DockStationConstants.dockstationRegistryUsername
+            const domain = dockstationManager
                 .getDockerRegistry()
                 .getLocalRegistryDomainAndPort()
 
@@ -64,7 +64,7 @@ router.post('/enableregistry/', function (req, res, next) {
 
 // ERRORS if default push is this
 router.post('/disableregistry/', function (req, res, next) {
-    const captainManager = CaptainManager.get()
+    const dockstationManager = DockStationManager.get()
     const registryHelper =
         InjectionExtractor.extractUserFromInjected(
             res
@@ -86,7 +86,7 @@ router.post('/disableregistry/', function (req, res, next) {
             return registryHelper.deleteRegistry(localRegistryId, true)
         })
         .then(function () {
-            return captainManager.getDockerRegistry().ensureServiceRemoved()
+            return dockstationManager.getDockerRegistry().ensureServiceRemoved()
         })
         .then(function () {
             const msg = 'Local registry is removed.'

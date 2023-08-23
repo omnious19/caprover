@@ -1,30 +1,30 @@
 #!/usr/bin/env node
 
-console.log('Captain Starting ...')
+console.log('DockStation Starting ...')
 
-// Check if Captain is running as an installer or not.
+// Check if DockStation is running as an installer or not.
 import * as http from 'http'
-import app, { initializeCaptainWithDelay } from './app'
+import app, { initializeDockStationWithDelay } from './app'
 import { AnyError } from './models/OtherTypes'
-import CaptainConstants from './utils/CaptainConstants'
-import * as CaptainInstaller from './utils/CaptainInstaller'
+import DockStationConstants from './utils/DockStationConstants'
+import * as DockStationInstaller from './utils/DockStationInstaller'
 import EnvVars from './utils/EnvVars'
 import debugModule = require('debug')
 
 const debug = debugModule('caprover:server')
 
 function startServer() {
-    if (CaptainConstants.isDebug) {
+    if (DockStationConstants.isDebug) {
         console.log('***DEBUG BUILD***')
     }
 
-    if (!EnvVars.IS_CAPTAIN_INSTANCE) {
-        console.log('Installing Captain Service ...')
-        CaptainInstaller.install()
+    if (!EnvVars.IS_DOCKSTATION_INSTANCE) {
+        console.log('Installing DockStation Service ...')
+        DockStationInstaller.install()
         return
     }
 
-    initializeCaptainWithDelay()
+    initializeDockStationWithDelay()
 
     /**
      * Get port from environment and store in Express.

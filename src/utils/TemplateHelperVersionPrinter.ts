@@ -24,7 +24,7 @@ function getTagsForImage(
                 }
 
                 try {
-                    // Sometimes Docker server is down and it crashes Captain!
+                    // Sometimes Docker server is down and it crashes DockStation!
                     body = JSON.parse(body)
                 } catch (e) {
                     Logger.e(e)

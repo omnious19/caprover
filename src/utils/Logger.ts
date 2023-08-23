@@ -1,6 +1,6 @@
 import * as moment from 'moment'
 import { AnyError } from '../models/OtherTypes'
-import CaptainConstants from './CaptainConstants'
+import DockStationConstants from './DockStationConstants'
 
 function errorize(error: AnyError) {
     if (!(error instanceof Error)) {
@@ -24,7 +24,7 @@ class Logger {
     }
 
     static dev(msg: string) {
-        if (CaptainConstants.isDebug) {
+        if (DockStationConstants.isDebug) {
             console.log(`${getTime()}########### ${msg}`)
         }
     }

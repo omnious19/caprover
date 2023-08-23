@@ -8,7 +8,7 @@ import DataStore from '../../datastore/DataStore'
 import DockerApi from '../../docker/DockerApi'
 import LoadBalancerInfo from '../../models/LoadBalancerInfo'
 import { AnyError } from '../../models/OtherTypes'
-import CaptainConstants from '../../utils/CaptainConstants'
+import DockStationConstants from '../../utils/DockStationConstants'
 import Logger from '../../utils/Logger'
 import CertbotManager from './CertbotManager'
 import fs = require('fs-extra')
@@ -25,7 +25,7 @@ const NGINX_CONTAINER_PATH_OF_FAKE_CERTS = '/etc/nginx/fake-certs'
 const CAPROVER_CONTAINER_PATH_OF_FAKE_CERTS =
     __dirname + '/../../../template/fake-certs-src'
 const HOST_PATH_OF_FAKE_CERTS =
-    CaptainConstants.captainRootDirectoryGenerated +
+    DockStationConstants.dockstationRootDirectoryGenerated +
     '/nginx/fake-certs-self-signed'
 
 if (!fs.existsSync(CAPROVER_CONTAINER_PATH_OF_FAKE_CERTS))
@@ -33,13 +33,13 @@ if (!fs.existsSync(CAPROVER_CONTAINER_PATH_OF_FAKE_CERTS))
 if (!defaultPageTemplate) throw new Error('defaultPageTemplate  is empty')
 
 const DH_PARAMS_FILE_PATH_ON_HOST = path.join(
-    CaptainConstants.nginxSharedPathOnHost,
-    CaptainConstants.nginxDhParamFileName
+    DockStationConstants.nginxSharedPathOnHost,
+    DockStationConstants.nginxDhParamFileName
 )
 
 const DH_PARAMS_FILE_PATH_ON_NGINX = path.join(
-    CaptainConstants.nginxSharedPathOnNginx,
-    CaptainConstants.nginxDhParamFileName
+    DockStationConstants.nginxSharedPathOnNginx,
+    DockStationConstants.nginxDhParamFileName
 )
 
 class LoadBalancerManager {
@@ -49,7 +49,7 @@ class LoadBalancerManager {
         resolve: VoidFunction
         reject: (reason: any) => void
     }[]
-    private captainPublicRandomKey: string
+    private dockstationPublicRandomKey: string
 
     constructor(
         private dockerApi: DockerApi,
@@ -58,7 +58,7 @@ class LoadBalancerManager {
     ) {
         this.reloadInProcess = false
         this.requestedReloadPromises = []
-        this.captainPublicRandomKey = uuid()
+        this.dockstationPublicRandomKey = uuid()
     }
 
     /**
@@ -81,7 +81,7 @@ class LoadBalancerManager {
             if (noReload) return
             Logger.d('sendReloadSignal...')
             return self.dockerApi.sendSingleContainerKillHUP(
-                CaptainConstants.nginxServiceName
+                DockStationConstants.nginxServiceName
             )
         })
     }
@@ -106,9 +106,9 @@ class LoadBalancerManager {
 
         const dataStore = q.dataStore
 
-        // This will resolve to something like: /captain/nginx/conf.d/captain
+        // This will resolve to something like: /dockstation/nginx/conf.d/dockstation
         const configFilePathBase = `${
-            CaptainConstants.perAppNginxConfigPathBase
+            DockStationConstants.perAppNginxConfigPathBase
         }/${dataStore.getNameSpace()}`
 
         const FUTURE = configFilePathBase + '.fut'
@@ -136,13 +136,13 @@ class LoadBalancerManager {
                         }
 
                         s.staticWebRoot = `${
-                            CaptainConstants.nginxStaticRootDir +
-                            CaptainConstants.nginxDomainSpecificHtmlDir
+                            DockStationConstants.nginxStaticRootDir +
+                            DockStationConstants.nginxDomainSpecificHtmlDir
                         }/${s.publicDomain}`
 
                         s.customErrorPagesDirectory =
-                            CaptainConstants.nginxStaticRootDir +
-                            CaptainConstants.nginxDefaultHtmlDir
+                            DockStationConstants.nginxStaticRootDir +
+                            DockStationConstants.nginxDefaultHtmlDir
 
                         const pathOfAuthInHost = `${configFilePathBase}-${s.publicDomain}.auth`
 
@@ -332,14 +332,14 @@ class LoadBalancerManager {
             })
     }
 
-    getCaptainPublicRandomKey() {
-        return this.captainPublicRandomKey
+    getDockStationPublicRandomKey() {
+        return this.dockstationPublicRandomKey
     }
 
     getSslCertPath(domainName: string) {
         const self = this
         return (
-            CaptainConstants.letsEncryptEtcPathOnNginx +
+            DockStationConstants.letsEncryptEtcPathOnNginx +
             self.certbotManager.getCertRelativePathForDomain(domainName)
         )
     }
@@ -347,14 +347,14 @@ class LoadBalancerManager {
     getSslKeyPath(domainName: string) {
         const self = this
         return (
-            CaptainConstants.letsEncryptEtcPathOnNginx +
+            DockStationConstants.letsEncryptEtcPathOnNginx +
             self.certbotManager.getKeyRelativePathForDomain(domainName)
         )
     }
 
     getInfo() {
         return new Promise<LoadBalancerInfo>(function (resolve, reject) {
-            const url = `http://${CaptainConstants.nginxServiceName}/nginx_status`
+            const url = `http://${DockStationConstants.nginxServiceName}/nginx_status`
 
             request(url, function (error, response, body) {
                 if (error || !body) {
@@ -401,18 +401,18 @@ class LoadBalancerManager {
     createRootConfFile(dataStore: DataStore) {
         const self = this
 
-        const captainDomain = `${
-            CaptainConstants.configs.captainSubDomain
+        const dockstationDomain = `${
+            DockStationConstants.configs.dockstationSubDomain
         }.${dataStore.getRootDomain()}`
         const registryDomain = `${
-            CaptainConstants.registrySubDomain
+            DockStationConstants.registrySubDomain
         }.${dataStore.getRootDomain()}`
 
         let hasRootSsl = false
 
-        const FUTURE = CaptainConstants.rootNginxConfigPath + '.fut'
-        const BACKUP = CaptainConstants.rootNginxConfigPath + '.bak'
-        const CONFIG = CaptainConstants.rootNginxConfigPath + '.conf'
+        const FUTURE = DockStationConstants.rootNginxConfigPath + '.fut'
+        const BACKUP = DockStationConstants.rootNginxConfigPath + '.bak'
+        const CONFIG = DockStationConstants.rootNginxConfigPath + '.conf'
 
         let rootNginxTemplate: string | undefined = undefined
 
@@ -422,8 +422,8 @@ class LoadBalancerManager {
             })
             .then(function (nginxConfig) {
                 rootNginxTemplate =
-                    nginxConfig.captainConfig.customValue ||
-                    nginxConfig.captainConfig.byDefault
+                    nginxConfig.dockstationConfig.customValue ||
+                    nginxConfig.dockstationConfig.byDefault
 
                 return dataStore.getHasRootSsl()
             })
@@ -443,21 +443,21 @@ class LoadBalancerManager {
                             'nginx.key'
                         ),
                     },
-                    captain: {
-                        crtPath: self.getSslCertPath(captainDomain),
-                        keyPath: self.getSslKeyPath(captainDomain),
+                    dockstation: {
+                        crtPath: self.getSslCertPath(dockstationDomain),
+                        keyPath: self.getSslKeyPath(dockstationDomain),
                         hasRootSsl: hasRootSsl,
-                        serviceName: CaptainConstants.captainServiceName,
-                        domain: captainDomain,
+                        serviceName: DockStationConstants.dockstationServiceName,
+                        domain: dockstationDomain,
                         serviceExposedPort:
-                            CaptainConstants.captainServiceExposedPort,
+                            DockStationConstants.dockstationServiceExposedPort,
                         defaultHtmlDir:
-                            CaptainConstants.nginxStaticRootDir +
-                            CaptainConstants.nginxDefaultHtmlDir,
+                            DockStationConstants.nginxStaticRootDir +
+                            DockStationConstants.nginxDefaultHtmlDir,
                         staticWebRoot: `${
-                            CaptainConstants.nginxStaticRootDir +
-                            CaptainConstants.nginxDomainSpecificHtmlDir
-                        }/${captainDomain}`,
+                            DockStationConstants.nginxStaticRootDir +
+                            DockStationConstants.nginxDomainSpecificHtmlDir
+                        }/${dockstationDomain}`,
                     },
                     registry: {
                         crtPath: self.getSslCertPath(registryDomain),
@@ -465,8 +465,8 @@ class LoadBalancerManager {
                         hasRootSsl: hasRegistrySsl,
                         domain: registryDomain,
                         staticWebRoot: `${
-                            CaptainConstants.nginxStaticRootDir +
-                            CaptainConstants.nginxDomainSpecificHtmlDir
+                            DockStationConstants.nginxStaticRootDir +
+                            DockStationConstants.nginxDomainSpecificHtmlDir
                         }/${registryDomain}`,
                     },
                 })
@@ -494,10 +494,10 @@ class LoadBalancerManager {
             .then(function () {
                 return self.dataStore.getNginxConfig()
             })
-            .then(function (captainConfig) {
+            .then(function (dockstationConfig) {
                 const baseConfigTemplate =
-                    captainConfig.baseConfig.customValue ||
-                    captainConfig.baseConfig.byDefault
+                    dockstationConfig.baseConfig.customValue ||
+                    dockstationConfig.baseConfig.byDefault
 
                 return ejs.render(baseConfigTemplate, {
                     base: {
@@ -513,7 +513,7 @@ class LoadBalancerManager {
             })
             .then(function (baseNginxConfFileContent) {
                 return fs.outputFile(
-                    CaptainConstants.baseNginxConfigPath,
+                    DockStationConstants.baseNginxConfigPath,
                     baseNginxConfFileContent
                 )
             })
@@ -570,19 +570,19 @@ class LoadBalancerManager {
 
         function createNginxServiceOnNode(nodeId: string) {
             Logger.d(
-                'No Captain Nginx service is running. Creating one on captain node...'
+                'No DockStation Nginx service is running. Creating one on dockstation node...'
             )
 
             return dockerApi
                 .createServiceOnNodeId(
-                    CaptainConstants.configs.nginxImageName,
-                    CaptainConstants.nginxServiceName,
+                    DockStationConstants.configs.nginxImageName,
+                    DockStationConstants.nginxServiceName,
                     [
                         {
                             protocol: 'tcp',
                             publishMode: 'host',
                             containerPort: 80,
-                            hostPort: CaptainConstants.nginxPortNumber,
+                            hostPort: DockStationConstants.nginxPortNumber,
                         },
                         {
                             protocol: 'tcp',
@@ -617,10 +617,10 @@ class LoadBalancerManager {
 
         return fs
             .outputFile(
-                CaptainConstants.captainStaticFilesDir +
-                    CaptainConstants.nginxDefaultHtmlDir +
-                    CaptainConstants.captainConfirmationPath,
-                self.getCaptainPublicRandomKey()
+                DockStationConstants.dockstationStaticFilesDir +
+                    DockStationConstants.nginxDefaultHtmlDir +
+                    DockStationConstants.dockstationConfirmationPath,
+                self.getDockStationPublicRandomKey()
             )
             .then(function () {
                 return ejs.render(defaultPageTemplate, {
@@ -632,8 +632,8 @@ class LoadBalancerManager {
             })
             .then(function (staticPageContent) {
                 return fs.outputFile(
-                    CaptainConstants.captainStaticFilesDir +
-                        CaptainConstants.nginxDefaultHtmlDir +
+                    DockStationConstants.dockstationStaticFilesDir +
+                        DockStationConstants.nginxDefaultHtmlDir +
                         '/index.html',
                     staticPageContent
                 )
@@ -648,8 +648,8 @@ class LoadBalancerManager {
             })
             .then(function (errorGenericPageContent) {
                 return fs.outputFile(
-                    CaptainConstants.captainStaticFilesDir +
-                        CaptainConstants.nginxDefaultHtmlDir +
+                    DockStationConstants.dockstationStaticFilesDir +
+                        DockStationConstants.nginxDefaultHtmlDir +
                         '/error_generic_catch_all.html',
                     errorGenericPageContent
                 )
@@ -666,9 +666,9 @@ class LoadBalancerManager {
             })
             .then(function (error502PageContent) {
                 return fs.outputFile(
-                    CaptainConstants.captainStaticFilesDir +
-                        CaptainConstants.nginxDefaultHtmlDir +
-                        '/captain_502_custom_error_page.html',
+                    DockStationConstants.dockstationStaticFilesDir +
+                        DockStationConstants.nginxDefaultHtmlDir +
+                        '/dockstation_502_custom_error_page.html',
                     error502PageContent
                 )
             })
@@ -687,22 +687,22 @@ class LoadBalancerManager {
                 return self.rePopulateNginxConfigFile(dataStore, true)
             })
             .then(function () {
-                return fs.ensureDir(CaptainConstants.letsEncryptEtcPath)
+                return fs.ensureDir(DockStationConstants.letsEncryptEtcPath)
             })
             .then(function () {
-                return fs.ensureDir(CaptainConstants.nginxSharedPathOnHost)
+                return fs.ensureDir(DockStationConstants.nginxSharedPathOnHost)
             })
             .then(function () {
                 return dockerApi.isServiceRunningByName(
-                    CaptainConstants.nginxServiceName
+                    DockStationConstants.nginxServiceName
                 )
             })
             .then(function (isRunning) {
                 if (isRunning) {
-                    Logger.d('Captain Nginx is already running.. ')
+                    Logger.d('DockStation Nginx is already running.. ')
 
                     return dockerApi.getNodeIdByServiceName(
-                        CaptainConstants.nginxServiceName,
+                        DockStationConstants.nginxServiceName,
                         0
                     )
                 } else {
@@ -714,11 +714,11 @@ class LoadBalancerManager {
             .then(function (nodeId) {
                 if (nodeId !== myNodeId) {
                     Logger.d(
-                        'Captain Nginx is running on a different node. Removing...'
+                        'DockStation Nginx is running on a different node. Removing...'
                     )
 
                     return dockerApi
-                        .removeServiceByName(CaptainConstants.nginxServiceName)
+                        .removeServiceByName(DockStationConstants.nginxServiceName)
                         .then(function () {
                             return createNginxServiceOnNode(myNodeId).then(
                                 function () {
@@ -734,12 +734,12 @@ class LoadBalancerManager {
                 Logger.d('Updating NGINX service...')
 
                 return dockerApi.updateService(
-                    CaptainConstants.nginxServiceName,
-                    CaptainConstants.configs.nginxImageName,
+                    DockStationConstants.nginxServiceName,
+                    DockStationConstants.configs.nginxImageName,
                     [
                         {
-                            containerPath: CaptainConstants.nginxStaticRootDir,
-                            hostPath: CaptainConstants.captainStaticFilesDir,
+                            containerPath: DockStationConstants.nginxStaticRootDir,
+                            hostPath: DockStationConstants.dockstationStaticFilesDir,
                         },
                         {
                             containerPath: NGINX_CONTAINER_PATH_OF_FAKE_CERTS,
@@ -747,25 +747,25 @@ class LoadBalancerManager {
                         },
                         {
                             containerPath: '/etc/nginx/nginx.conf',
-                            hostPath: CaptainConstants.baseNginxConfigPath,
+                            hostPath: DockStationConstants.baseNginxConfigPath,
                         },
                         {
                             containerPath: CONTAINER_PATH_OF_CONFIG,
                             hostPath:
-                                CaptainConstants.perAppNginxConfigPathBase,
+                                DockStationConstants.perAppNginxConfigPathBase,
                         },
                         {
                             containerPath:
-                                CaptainConstants.letsEncryptEtcPathOnNginx,
-                            hostPath: CaptainConstants.letsEncryptEtcPath,
+                                DockStationConstants.letsEncryptEtcPathOnNginx,
+                            hostPath: DockStationConstants.letsEncryptEtcPath,
                         },
                         {
                             containerPath:
-                                CaptainConstants.nginxSharedPathOnNginx,
-                            hostPath: CaptainConstants.nginxSharedPathOnHost,
+                                DockStationConstants.nginxSharedPathOnNginx,
+                            hostPath: DockStationConstants.nginxSharedPathOnHost,
                         },
                     ],
-                    [CaptainConstants.captainNetworkName],
+                    [DockStationConstants.dockstationNetworkName],
                     undefined,
                     undefined,
                     undefined,

@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid'
 import ApiStatusCodes from '../../api/ApiStatusCodes'
-import CaptainConstants from '../../utils/CaptainConstants'
+import DockStationConstants from '../../utils/DockStationConstants'
 import Logger from '../../utils/Logger'
 import Utils from '../../utils/Utils'
 import CertbotManager from './CertbotManager'
@@ -21,23 +21,23 @@ export default class DomainResolveChecker {
     /**
      * Returns a promise successfully if verification is succeeded. If it fails, it throws an exception.
      *
-     * @param domainName the domain to verify, app.mycaptainroot.com or www.myawesomeapp.com
+     * @param domainName the domain to verify, app.mydockstationroot.com or www.myawesomeapp.com
      * @param identifierSuffix an optional suffix to be added to the identifier file name to avoid name conflict
      *
      * @returns {Promise.<boolean>}
      */
-    verifyCaptainOwnsDomainOrThrow(
+    verifyDockStationOwnsDomainOrThrow(
         domainName: string,
         identifierSuffix: string | undefined
     ) {
-        if (CaptainConstants.configs.skipVerifyingDomains) {
+        if (DockStationConstants.configs.skipVerifyingDomains) {
             return Utils.getDelayedPromise(1000)
         }
 
         const self = this
         const randomUuid = uuid()
-        const captainConfirmationPath =
-            CaptainConstants.captainConfirmationPath +
+        const dockstationConfirmationPath =
+            DockStationConstants.dockstationConfirmationPath +
             (identifierSuffix ? identifierSuffix : '')
 
         return Promise.resolve()
@@ -47,9 +47,9 @@ export default class DomainResolveChecker {
             .then(function () {
                 return fs.outputFile(
                     `${
-                        CaptainConstants.captainStaticFilesDir +
-                        CaptainConstants.nginxDomainSpecificHtmlDir
-                    }/${domainName}${captainConfirmationPath}`,
+                        DockStationConstants.dockstationStaticFilesDir +
+                        DockStationConstants.nginxDomainSpecificHtmlDir
+                    }/${domainName}${dockstationConfirmationPath}`,
                     randomUuid
                 )
             })
@@ -62,7 +62,7 @@ export default class DomainResolveChecker {
             })
             .then(function () {
                 return new Promise<void>(function (resolve, reject) {
-                    const url = `http://${domainName}:${CaptainConstants.nginxPortNumber}${captainConfirmationPath}`
+                    const url = `http://${domainName}:${DockStationConstants.nginxPortNumber}${dockstationConfirmationPath}`
 
                     request(
                         url,
@@ -92,14 +92,14 @@ export default class DomainResolveChecker {
     }
 
     verifyDomainResolvesToDefaultServerOnHost(domainName: string) {
-        if (CaptainConstants.configs.skipVerifyingDomains) {
+        if (DockStationConstants.configs.skipVerifyingDomains) {
             return Utils.getDelayedPromise(1000)
         }
 
         const self = this
 
         return new Promise<void>(function (resolve, reject) {
-            const url = `http://${domainName}${CaptainConstants.captainConfirmationPath}`
+            const url = `http://${domainName}${DockStationConstants.dockstationConfirmationPath}`
 
             Logger.d(`Sending request to ${url}`)
 
@@ -108,7 +108,7 @@ export default class DomainResolveChecker {
                     error ||
                     !body ||
                     body !==
-                        self.loadBalancerManager.getCaptainPublicRandomKey()
+                        self.loadBalancerManager.getDockStationPublicRandomKey()
                 ) {
                     reject(
                         ApiStatusCodes.createError(

@@ -7,7 +7,7 @@ import {
     CapRoverEventFactory,
     CapRoverEventType,
 } from '../../../user/events/ICapRoverEvent'
-import CaptainConstants from '../../../utils/CaptainConstants'
+import DockStationConstants from '../../../utils/DockStationConstants'
 import Logger from '../../../utils/Logger'
 
 const router = express.Router()
@@ -16,8 +16,8 @@ const DEFAULT_ONE_CLICK_BASE_URL = 'https://oneclickapps.caprover.com'
 const VERSION = `v4`
 
 const HEADERS = {} as any
-HEADERS[CaptainConstants.headerCapRoverVersion] =
-    CaptainConstants.configs.version
+HEADERS[DockStationConstants.headerCapRoverVersion] =
+    DockStationConstants.configs.version
 
 interface IOneClickAppIdentifier {
     baseUrl: string

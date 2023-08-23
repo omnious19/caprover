@@ -2,17 +2,17 @@ import fs = require('fs-extra')
 import path = require('path')
 import EnvVars from './EnvVars'
 
-const CAPTAIN_BASE_DIRECTORY = '/captain'
-const CAPTAIN_DATA_DIRECTORY = CAPTAIN_BASE_DIRECTORY + '/data' // data that sits here can be backed up
-const CAPTAIN_ROOT_DIRECTORY_TEMP = CAPTAIN_BASE_DIRECTORY + '/temp'
-const CAPTAIN_ROOT_DIRECTORY_GENERATED = CAPTAIN_BASE_DIRECTORY + '/generated'
+const DOCKSTATION_BASE_DIRECTORY = '/dockstation'
+const DOCKSTATION_DATA_DIRECTORY = DOCKSTATION_BASE_DIRECTORY + '/data' // data that sits here can be backed up
+const DOCKSTATION_ROOT_DIRECTORY_TEMP = DOCKSTATION_BASE_DIRECTORY + '/temp'
+const DOCKSTATION_ROOT_DIRECTORY_GENERATED = DOCKSTATION_BASE_DIRECTORY + '/generated'
 
 const CONSTANT_FILE_OVERRIDE_BUILD = path.join(
     __dirname,
     '../../config-override.json'
 )
 const CONSTANT_FILE_OVERRIDE_USER =
-    CAPTAIN_DATA_DIRECTORY + '/config-override.json'
+    DOCKSTATION_DATA_DIRECTORY + '/config-override.json'
 
 const configs = {
     publishedNameOnDockerHub: 'caprover/caprover',
@@ -45,7 +45,7 @@ const configs = {
 
     defaultEmail: 'runner@caprover.com',
 
-    captainSubDomain: 'captain',
+    dockstationSubDomain: 'dockstation',
 
     overlayNetworkOverride: {},
 
@@ -63,15 +63,15 @@ const data = {
 
     apiVersion: 'v2',
 
-    isDebug: EnvVars.CAPTAIN_IS_DEBUG,
+    isDebug: EnvVars.DOCKSTATION_IS_DEBUG,
 
-    captainServiceExposedPort: 3000,
+    dockstationServiceExposedPort: 3000,
 
-    rootNameSpace: 'captain',
+    rootNameSpace: 'dockstation',
 
     // *********************** Disk Paths ************************
 
-    defaultCaptainDefinitionPath: './captain-definition',
+    defaultDockStationDefinitionPath: './dockstation-definition',
 
     dockerSocketPath: '/var/run/docker.sock',
 
@@ -79,7 +79,7 @@ const data = {
 
     nginxStaticRootDir: '/usr/share/nginx',
 
-    captainStaticFilesDir: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/static',
+    dockstationStaticFilesDir: DOCKSTATION_ROOT_DIRECTORY_GENERATED + '/static',
 
     nginxSharedPathOnNginx: '/nginx-shared',
 
@@ -91,43 +91,43 @@ const data = {
 
     nginxDomainSpecificHtmlDir: '/domains',
 
-    captainConfirmationPath: '/.well-known/captain-identifier',
+    dockstationConfirmationPath: '/.well-known/dockstation-identifier',
 
-    captainBaseDirectory: CAPTAIN_BASE_DIRECTORY,
+    dockstationBaseDirectory: DOCKSTATION_BASE_DIRECTORY,
 
-    restoreTarFilePath: CAPTAIN_BASE_DIRECTORY + '/backup.tar',
+    restoreTarFilePath: DOCKSTATION_BASE_DIRECTORY + '/backup.tar',
 
-    restoreDirectoryPath: CAPTAIN_BASE_DIRECTORY + '/restoring',
+    restoreDirectoryPath: DOCKSTATION_BASE_DIRECTORY + '/restoring',
 
-    captainRootDirectoryTemp: CAPTAIN_ROOT_DIRECTORY_TEMP,
+    dockstationRootDirectoryTemp: DOCKSTATION_ROOT_DIRECTORY_TEMP,
 
-    captainRootDirectoryBackup: CAPTAIN_ROOT_DIRECTORY_TEMP + '/backup',
+    dockstationRootDirectoryBackup: DOCKSTATION_ROOT_DIRECTORY_TEMP + '/backup',
 
-    captainDownloadsDirectory: CAPTAIN_ROOT_DIRECTORY_TEMP + '/downloads',
+    dockstationDownloadsDirectory: DOCKSTATION_ROOT_DIRECTORY_TEMP + '/downloads',
 
-    captainRawSourceDirectoryBase: CAPTAIN_ROOT_DIRECTORY_TEMP + '/image_raw',
+    dockstationRawSourceDirectoryBase: DOCKSTATION_ROOT_DIRECTORY_TEMP + '/image_raw',
 
-    captainRootDirectoryGenerated: CAPTAIN_ROOT_DIRECTORY_GENERATED,
+    dockstationRootDirectoryGenerated: DOCKSTATION_ROOT_DIRECTORY_GENERATED,
 
-    registryAuthPathOnHost: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/registry-auth', // this is a file
+    registryAuthPathOnHost: DOCKSTATION_ROOT_DIRECTORY_GENERATED + '/registry-auth', // this is a file
 
-    baseNginxConfigPath: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/nginx.conf', // this is a file
+    baseNginxConfigPath: DOCKSTATION_ROOT_DIRECTORY_GENERATED + '/nginx/nginx.conf', // this is a file
 
     rootNginxConfigPath:
-        CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d/captain-root',
+        DOCKSTATION_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d/dockstation-root',
 
     perAppNginxConfigPathBase:
-        CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d',
+        DOCKSTATION_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d',
 
-    captainDataDirectory: CAPTAIN_DATA_DIRECTORY,
+    dockstationDataDirectory: DOCKSTATION_DATA_DIRECTORY,
 
-    letsEncryptLibPath: CAPTAIN_DATA_DIRECTORY + '/letencrypt/lib',
+    letsEncryptLibPath: DOCKSTATION_DATA_DIRECTORY + '/letencrypt/lib',
 
-    letsEncryptEtcPath: CAPTAIN_DATA_DIRECTORY + '/letencrypt/etc',
+    letsEncryptEtcPath: DOCKSTATION_DATA_DIRECTORY + '/letencrypt/etc',
 
-    registryPathOnHost: CAPTAIN_DATA_DIRECTORY + '/registry',
+    registryPathOnHost: DOCKSTATION_DATA_DIRECTORY + '/registry',
 
-    nginxSharedPathOnHost: CAPTAIN_DATA_DIRECTORY + '/nginx-shared',
+    nginxSharedPathOnHost: DOCKSTATION_DATA_DIRECTORY + '/nginx-shared',
 
     debugSourceDirectory: '', // Only used in debug mode
 
@@ -135,21 +135,21 @@ const data = {
 
     certbotImageName: 'caprover/certbot-sleeping:v1.6.0',
 
-    captainSaltSecretKey: 'captain-salt',
+    dockstationSaltSecretKey: 'dockstation-salt',
 
-    nginxServiceName: 'captain-nginx',
+    nginxServiceName: 'dockstation-nginx',
 
-    captainServiceName: 'captain-captain',
+    dockstationServiceName: 'dockstation-dockstation',
 
-    certbotServiceName: 'captain-certbot',
+    certbotServiceName: 'dockstation-certbot',
 
-    netDataContainerName: 'captain-netdata-container',
+    netDataContainerName: 'dockstation-netdata-container',
 
-    registryServiceName: 'captain-registry',
+    registryServiceName: 'dockstation-registry',
 
-    captainNetworkName: 'captain-overlay-network',
+    dockstationNetworkName: 'dockstation-overlay-network',
 
-    captainRegistryUsername: 'captain',
+    dockstationRegistryUsername: 'dockstation',
 
     // ********************* HTTP Related Constants  ************************
 
@@ -161,11 +161,11 @@ const data = {
 
     registrySubDomain: 'registry',
 
-    headerCookieAuth: 'captainCookieAuth',
+    headerCookieAuth: 'dockstationCookieAuth',
 
-    headerAuth: 'x-captain-auth',
+    headerAuth: 'x-dockstation-auth',
 
-    headerAppToken: 'x-captain-app-token',
+    headerAppToken: 'x-dockstation-app-token',
 
     headerNamespace: 'x-namespace',
 
@@ -215,7 +215,7 @@ if (data.isDebug) {
     }
 
     data.debugSourceDirectory = devDirectoryOnLocalMachine
-    data.configs.publishedNameOnDockerHub = 'captain-debug'
+    data.configs.publishedNameOnDockerHub = 'dockstation-debug'
     data.nginxPortNumber = 80
 }
 

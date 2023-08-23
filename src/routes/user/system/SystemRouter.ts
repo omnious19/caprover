@@ -5,9 +5,9 @@ import BaseApi from '../../../api/BaseApi'
 import DockerApi from '../../../docker/DockerApi'
 import DockerUtils from '../../../docker/DockerUtils'
 import InjectionExtractor from '../../../injection/InjectionExtractor'
-import CaptainManager from '../../../user/system/CaptainManager'
+import DockStationManager from '../../../user/system/DockStationManager'
 import VersionManager from '../../../user/system/VersionManager'
-import CaptainConstants from '../../../utils/CaptainConstants'
+import DockStationConstants from '../../../utils/DockStationConstants'
 import Logger from '../../../utils/Logger'
 import Utils from '../../../utils/Utils'
 import SystemRouteSelfHostRegistry from './selfhostregistry/SystemRouteSelfHostRegistry'
@@ -17,11 +17,11 @@ const router = express.Router()
 router.use('/selfhostregistry/', SystemRouteSelfHostRegistry)
 
 router.post('/createbackup/', function (req, res, next) {
-    const backupManager = CaptainManager.get().getBackupManager()
+    const backupManager = DockStationManager.get().getBackupManager()
 
     Promise.resolve()
         .then(function () {
-            return backupManager.createBackup(CaptainManager.get())
+            return backupManager.createBackup(DockStationManager.get())
         })
         .then(function (backupInfo) {
             const baseApi = new BaseApi(
@@ -54,8 +54,8 @@ router.post('/changerootdomain/', function (req, res, next) {
         return
     }
 
-    CaptainManager.get()
-        .changeCaptainRootDomain(requestedCustomDomain, !!req.body.force)
+    DockStationManager.get()
+        .changeDockStationRootDomain(requestedCustomDomain, !!req.body.force)
         .then(function () {
             res.send(
                 new BaseApi(ApiStatusCodes.STATUS_OK, 'Root domain changed.')
@@ -86,7 +86,7 @@ router.post('/enablessl/', function (req, res, next) {
         return
     }
 
-    CaptainManager.get()
+    DockStationManager.get()
         .enableSsl(emailAddress)
         .then(function () {
             // This is necessary as the CLI immediately tries to connect to https://dockstationroot.com
@@ -103,7 +103,7 @@ router.post('/enablessl/', function (req, res, next) {
 router.post('/forcessl/', function (req, res, next) {
     const isEnabled = !!req.body.isEnabled
 
-    CaptainManager.get()
+    DockStationManager.get()
         .forceSsl(isEnabled)
         .then(function () {
             res.send(
@@ -129,17 +129,17 @@ router.get('/info/', function (req, res, next) {
         .then(function (hasRootSsl) {
             return {
                 hasRootSsl: hasRootSsl,
-                forceSsl: CaptainManager.get().getForceSslValue(),
+                forceSsl: DockStationManager.get().getForceSslValue(),
                 rootDomain: dataStore.hasCustomDomain()
                     ? dataStore.getRootDomain()
                     : '',
-                captainSubDomain: CaptainConstants.configs.captainSubDomain,
+                dockstationSubDomain: DockStationConstants.configs.dockstationSubDomain,
             }
         })
         .then(function (data) {
             const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
-                'Captain info retrieved'
+                'DockStation info retrieved'
             )
             baseApi.data = data
             res.send(baseApi)
@@ -150,7 +150,7 @@ router.get('/info/', function (req, res, next) {
 router.get('/loadbalancerinfo/', function (req, res, next) {
     return Promise.resolve()
         .then(function () {
-            return CaptainManager.get().getLoadBalanceManager().getInfo()
+            return DockStationManager.get().getLoadBalanceManager().getInfo()
         })
         .then(function (data) {
             const baseApi = new BaseApi(
@@ -166,7 +166,7 @@ router.get('/loadbalancerinfo/', function (req, res, next) {
 router.get('/versionInfo/', function (req, res, next) {
     return Promise.resolve()
         .then(function () {
-            return VersionManager.get().getCaptainImageTags()
+            return VersionManager.get().getDockStationImageTags()
         })
         .then(function (data) {
             const baseApi = new BaseApi(
@@ -188,7 +188,7 @@ router.post('/versionInfo/', function (req, res, next) {
 
     return Promise.resolve()
         .then(function () {
-            return VersionManager.get().updateCaptain(
+            return VersionManager.get().updateDockStation(
                 latestVersion,
                 registryHelper
             )
@@ -196,7 +196,7 @@ router.post('/versionInfo/', function (req, res, next) {
         .then(function () {
             const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
-                'Captain update process has started...'
+                'DockStation update process has started...'
             )
             res.send(baseApi)
         })
@@ -213,9 +213,9 @@ router.get('/netdata/', function (req, res, next) {
         })
         .then(function (data) {
             data.netDataUrl = `${
-                CaptainConstants.configs.captainSubDomain
+                DockStationConstants.configs.dockstationSubDomain
             }.${dataStore.getRootDomain()}${
-                CaptainConstants.netDataRelativePath
+                DockStationConstants.netDataRelativePath
             }`
             const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
@@ -234,7 +234,7 @@ router.post('/netdata/', function (req, res, next) {
 
     return Promise.resolve()
         .then(function () {
-            return CaptainManager.get().updateNetDataInfo(netDataInfo)
+            return DockStationManager.get().updateNetDataInfo(netDataInfo)
         })
         .then(function () {
             const baseApi = new BaseApi(
@@ -249,7 +249,7 @@ router.post('/netdata/', function (req, res, next) {
 router.get('/nginxconfig/', function (req, res, next) {
     return Promise.resolve()
         .then(function () {
-            return CaptainManager.get().getNginxConfig()
+            return DockStationManager.get().getNginxConfig()
         })
         .then(function (data) {
             const baseApi = new BaseApi(
@@ -264,13 +264,13 @@ router.get('/nginxconfig/', function (req, res, next) {
 
 router.post('/nginxconfig/', function (req, res, next) {
     const baseConfigCustomValue = req.body.baseConfig.customValue
-    const captainConfigCustomValue = req.body.captainConfig.customValue
+    const dockstationConfigCustomValue = req.body.dockstationConfig.customValue
 
     return Promise.resolve()
         .then(function () {
-            return CaptainManager.get().setNginxConfig(
+            return DockStationManager.get().setNginxConfig(
                 baseConfigCustomValue,
-                captainConfigCustomValue
+                dockstationConfigCustomValue
             )
         })
         .then(function () {
@@ -286,7 +286,7 @@ router.post('/nginxconfig/', function (req, res, next) {
 router.get('/nodes/', function (req, res, next) {
     return Promise.resolve()
         .then(function () {
-            return CaptainManager.get().getNodesInfo()
+            return DockStationManager.get().getNodesInfo()
         })
         .then(function (data) {
             const baseApi = new BaseApi(
@@ -325,15 +325,15 @@ router.post('/nodes/', function (req, res, next) {
 
     const privateKey = req.body.privateKey
     const remoteNodeIpAddress = req.body.remoteNodeIpAddress
-    const captainIpAddress = req.body.captainIpAddress
+    const dockstationIpAddress = req.body.dockstationIpAddress
     const sshPort = parseInt(req.body.sshPort) || 22
     const sshUser = (req.body.sshUser || 'root').trim()
 
-    if (!captainIpAddress || !remoteNodeIpAddress || !privateKey) {
+    if (!dockstationIpAddress || !remoteNodeIpAddress || !privateKey) {
         res.send(
             new BaseApi(
                 ApiStatusCodes.STATUS_ERROR_GENERIC,
-                'Private Key, Captain IP address, remote IP address and remote username should all be present'
+                'Private Key, DockStation IP address, remote IP address and remote username should all be present'
             )
         )
         return
@@ -356,7 +356,7 @@ router.post('/nodes/', function (req, res, next) {
                 DockerApi.get(),
                 sshUser,
                 sshPort,
-                captainIpAddress,
+                dockstationIpAddress,
                 isManager,
                 remoteNodeIpAddress,
                 privateKey

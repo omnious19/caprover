@@ -1,21 +1,21 @@
 import { Response } from 'express'
 import Logger from '../utils/Logger'
 import BaseApi from './BaseApi'
-import { CaptainError } from './CaptainError'
+import { DockStationError } from './DockStationError'
 
 class ApiStatusCodes {
     static createError(code: number, message: string) {
-        return new CaptainError(code, message || 'NONE')
+        return new DockStationError(code, message || 'NONE')
     }
 
     static createCatcher(res: Response) {
-        return function (error: CaptainError | any) {
+        return function (error: DockStationError | any) {
             if (!error || error.errorStatus !== 404) {
                 Logger.e(error)
             }
 
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
+            if (error && error.dockstationErrorType) {
+                res.send(new BaseApi(error.dockstationErrorType, error.apiMessage))
                 return
             }
 
@@ -32,7 +32,7 @@ class ApiStatusCodes {
     static readonly STATUS_OK = 100
     static readonly STATUS_OK_DEPLOY_STARTED = 101
     static readonly STATUS_OK_PARTIALLY = 102
-    static readonly STATUS_ERROR_CAPTAIN_NOT_INITIALIZED = 1001
+    static readonly STATUS_ERROR_DOCKSTATION_NOT_INITIALIZED = 1001
     static readonly STATUS_ERROR_USER_NOT_INITIALIZED = 1101
     static readonly STATUS_ERROR_NOT_AUTHORIZED = 1102
     static readonly STATUS_ERROR_ALREADY_EXIST = 1103

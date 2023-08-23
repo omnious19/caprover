@@ -1,20 +1,20 @@
 #!/bin/sh
 
-# Run this script on the server to migrate from CaptainDuckDuck.
+# Run this script on the server to migrate from DockStationDuckDuck.
 
 cd / && \
 docker pull caprover/caprover && \
-docker service scale captain-captain=0 && \
-docker service rm captain-certbot captain-nginx && \
-(docker service rm captain-registry || true) && \
+docker service scale dockstation-dockstation=0 && \
+docker service rm dockstation-certbot dockstation-nginx && \
+(docker service rm dockstation-registry || true) && \
 sleep 3s && echo "waiting..." && sleep 3s && echo "waiting..." && \
-rm -rf /captain/generated && rm -rf /captain/temp && \
-tar -cvf /captain-bk-$(date +%Y_%m_%d_%H_%M_%S).tar /captain && \
-mkdir -p /captain/data && \
-mv /captain/letencrypt /captain/data/ && \
-mv /captain/nginx-shared /captain/data/ && \
-mv /captain/registry /captain/data/ && \
-mv /captain/config.conf /captain/data/ && \
-docker service update --image caprover/caprover captain-captain && \
-docker service scale captain-captain=1 --detach && \
-docker service logs captain-captain --follow
+rm -rf /dockstation/generated && rm -rf /dockstation/temp && \
+tar -cvf /dockstation-bk-$(date +%Y_%m_%d_%H_%M_%S).tar /dockstation && \
+mkdir -p /dockstation/data && \
+mv /dockstation/letencrypt /dockstation/data/ && \
+mv /dockstation/nginx-shared /dockstation/data/ && \
+mv /dockstation/registry /dockstation/data/ && \
+mv /dockstation/config.conf /dockstation/data/ && \
+docker service update --image caprover/caprover dockstation-dockstation && \
+docker service scale dockstation-dockstation=1 --detach && \
+docker service logs dockstation-dockstation --follow

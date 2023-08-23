@@ -2,7 +2,7 @@ import axios from 'axios'
 import ApiStatusCodes from '../../api/ApiStatusCodes'
 import ProDataStore from '../../datastore/ProDataStore'
 import { IProConfig, IProFeatures } from '../../models/IProFeatures'
-import CaptainConstants from '../../utils/CaptainConstants'
+import DockStationConstants from '../../utils/DockStationConstants'
 import EnvVars from '../../utils/EnvVars'
 import Logger from '../../utils/Logger'
 import FeatureFlags from '../FeatureFlags'
@@ -28,9 +28,9 @@ export default class ProManager {
 
     private static getBaseUrl() {
         return (
-            CaptainConstants.configs.proApiDomains[
+            DockStationConstants.configs.proApiDomains[
                 ProManager.activeApiIndex %
-                    CaptainConstants.configs.proApiDomains.length
+                    DockStationConstants.configs.proApiDomains.length
             ] + '/api/v1'
         )
     }
@@ -82,7 +82,7 @@ export default class ProManager {
             .catch((err) => {
                 Logger.e(err)
 
-                if (err.captainErrorType) {
+                if (err.dockstationErrorType) {
                     throw err
                 }
 
@@ -110,7 +110,7 @@ export default class ProManager {
                     .then(function (installationId) {
                         const allHeaders = {
                             'x-caprover-version':
-                                CaptainConstants.configs.version,
+                                DockStationConstants.configs.version,
                             'x-installation-id': installationId,
                         } as any
 
@@ -204,7 +204,7 @@ export default class ProManager {
                     .catch((err) => {
                         Logger.e(err)
                         if (
-                            err.captainErrorType ===
+                            err.dockstationErrorType ===
                             ApiStatusCodes.STATUS_ERROR_PRO_API_KEY_INVALIDATED
                         ) {
                             return // do not revert the config if the API key is invalidated
@@ -257,7 +257,7 @@ export default class ProManager {
                 return axios({
                     method: 'post',
                     data: { event },
-                    url: `${CaptainConstants.configs.analyticsDomain}/api/v1/analytics/event`,
+                    url: `${DockStationConstants.configs.analyticsDomain}/api/v1/analytics/event`,
                     headers: headers,
                 })
             })

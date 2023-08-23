@@ -7,7 +7,7 @@ import {
     TwoFactorAuthResponse,
 } from '../../../models/IProFeatures'
 import ProManagerUtils from '../../../user/pro/ProManagerUtils'
-import CaptainConstants from '../../../utils/CaptainConstants'
+import DockStationConstants from '../../../utils/DockStationConstants'
 
 const OTP_TOKEN_LENGTH = 6
 
@@ -26,7 +26,7 @@ router.post('/apikey/', function (req, res, next) {
         .then(function (rootDomain) {
             return userManager.proManager.validateApiKey(
                 apiKey,
-                `${CaptainConstants.configs.captainSubDomain}.${rootDomain}`
+                `${DockStationConstants.configs.dockstationSubDomain}.${rootDomain}`
             )
         })
         .then(function (isValid) {

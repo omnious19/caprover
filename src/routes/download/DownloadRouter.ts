@@ -1,7 +1,7 @@
 import express = require('express')
 import ApiStatusCodes from '../../api/ApiStatusCodes'
 import Authenticator from '../../user/Authenticator'
-import CaptainConstants from '../../utils/CaptainConstants'
+import DockStationConstants from '../../utils/DockStationConstants'
 import Utils from '../../utils/Utils'
 
 const router = express.Router()
@@ -17,7 +17,7 @@ router.get('/', function (req, res, next) {
             ).decodeDownloadToken(downloadToken)
         })
         .then(function (obj) {
-            const fileFullPath = `${CaptainConstants.captainDownloadsDirectory}/${namespace}/${obj.downloadFileName}`
+            const fileFullPath = `${DockStationConstants.dockstationDownloadsDirectory}/${namespace}/${obj.downloadFileName}`
             res.download(fileFullPath, function () {
                 Utils.deleteFileQuietly(fileFullPath)
             })

@@ -9,7 +9,7 @@ import {
     VolumesTypes,
 } from '../models/OtherTypes'
 import BuildLog from '../user/BuildLog'
-import CaptainConstants from '../utils/CaptainConstants'
+import DockStationConstants from '../utils/DockStationConstants'
 import EnvVars from '../utils/EnvVars'
 import Logger from '../utils/Logger'
 import Utils from '../utils/Utils'
@@ -175,11 +175,11 @@ class DockerApi {
     }
 
     createJoinCommand(
-        captainIpAddress: string,
+        dockstationIpAddress: string,
         token: string,
         workerIp: string
     ) {
-        return `docker swarm join --token ${token} ${captainIpAddress}:2377 --advertise-addr ${workerIp}:2377`
+        return `docker swarm join --token ${token} ${dockstationIpAddress}:2377 --advertise-addr ${workerIp}:2377`
     }
 
     getNodesInfo() {
@@ -422,7 +422,7 @@ class DockerApi {
 
     /**
      * This method container a lot of hacks to workaround some Docker issues.
-     * See https://github.com/githubsaturn/captainduckduck/issues/176
+     * See https://github.com/githubsaturn/dockstationduckduck/issues/176
      *
      * @param nameOrId
      * @param networkIdOrName
@@ -554,7 +554,7 @@ class DockerApi {
                             Type: 'json-file',
                             Config: {
                                 'max-size':
-                                    CaptainConstants.configs.defaultMaxLogSize,
+                                    DockStationConstants.configs.defaultMaxLogSize,
                             },
                         },
                         RestartPolicy: {
@@ -754,7 +754,7 @@ class DockerApi {
                 LogDriver: {
                     Name: 'json-file',
                     Options: {
-                        'max-size': CaptainConstants.configs.defaultMaxLogSize,
+                        'max-size': DockStationConstants.configs.defaultMaxLogSize,
                     },
                 },
             },
@@ -994,7 +994,7 @@ class DockerApi {
             })
             .then(function (secrets) {
                 // the filter returns all secrets whose name includes the provided secretKey. e.g., if you ask for
-                // captain-me, it also returns captain-me1 and etc if exist
+                // dockstation-me, it also returns dockstation-me1 and etc if exist
 
                 for (let i = 0; i < secrets.length; i++) {
                     const specs = secrets[i].Spec
@@ -1102,7 +1102,7 @@ class DockerApi {
             })
             .then(function (secrets) {
                 // the filter returns all secrets whose name includes the provided secretKey. e.g., if you ask for
-                // captain-me, it also returns captain-me1 and etc if exist
+                // dockstation-me, it also returns dockstation-me1 and etc if exist
 
                 let secretExists = false
 
@@ -1209,7 +1209,7 @@ class DockerApi {
      *        containerPath: 'some value' [REQUIRED]
      *        hostPath: 'somekey' [REQUIRED for bind type]
      *        volumeName: 'my-volume-name' [REQUIRED for type:volume]
-     *        type: <defaults to bind>, can be volume or tmpfs (not supported yet through captain)
+     *        type: <defaults to bind>, can be volume or tmpfs (not supported yet through dockstation)
      *    }
      * ]
      * @param networks
@@ -1237,7 +1237,7 @@ class DockerApi {
      * ]
      * @param instanceCount: String '12' or null
      * @param nodeId: nodeId of the node this service will be locked to or null
-     * @param namespace: String 'captain' or null
+     * @param namespace: String 'dockstation' or null
      * @returns {Promise.<>}
      */
     updateService(
@@ -1470,7 +1470,7 @@ class DockerApi {
                 // - Create a app and have it locked to the worker node
                 // - Deploy a few sample apps, it works fine.
                 // - Then try to deploy a simple imageName such as "nginx:1". This will fail!
-                // - Even with "docker service update srv-captain--name --image nginx:1 --force" it will still fail
+                // - Even with "docker service update srv-dockstation--name --image nginx:1 --force" it will still fail
                 // - The only way that you can make it work is by passing --wit-registry-auth flag to CLI.
                 // I did some reverse engineering to see what happens under the hood, and it appears that docker uses empty user/pass
                 // So I did that below, and things started working!
@@ -1563,7 +1563,7 @@ class DockerApi {
                         tail: tailCount,
                         follow: false,
                         timestamps:
-                            !!CaptainConstants.configs
+                            !!DockStationConstants.configs
                                 .enableDockerLogsTimestamp,
                         stdout: true,
                         stderr: true,
@@ -1678,11 +1678,11 @@ class DockerApi {
     }
 }
 
-const dockerApiAddressSplited = (EnvVars.CAPTAIN_DOCKER_API || '').split(':')
+const dockerApiAddressSplited = (EnvVars.DOCKSTATION_DOCKER_API || '').split(':')
 const connectionParams: Docker.DockerOptions =
     dockerApiAddressSplited.length < 2
         ? {
-              socketPath: CaptainConstants.dockerSocketPath,
+              socketPath: DockStationConstants.dockerSocketPath,
           }
         : dockerApiAddressSplited.length === 2
         ? {
@@ -1694,7 +1694,7 @@ const connectionParams: Docker.DockerOptions =
               port: Number(dockerApiAddressSplited[2]),
           }
 
-connectionParams.version = CaptainConstants.configs.dockerApiVersion
+connectionParams.version = DockStationConstants.configs.dockerApiVersion
 
 const dockerApiInstance = new DockerApi(connectionParams)
 

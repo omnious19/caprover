@@ -3,17 +3,17 @@ import ApiStatusCodes from '../api/ApiStatusCodes'
 import DataStore from '../datastore/DataStore'
 import DockerApi, { IDockerUpdateOrders } from '../docker/DockerApi'
 import { PreDeployFunction } from '../models/OtherTypes'
-import CaptainConstants from '../utils/CaptainConstants'
+import DockStationConstants from '../utils/DockStationConstants'
 import Logger from '../utils/Logger'
 import Utils from '../utils/Utils'
 import Authenticator from './Authenticator'
 import DockerRegistryHelper from './DockerRegistryHelper'
+import ImageMaker, { BuildLogsManager } from './ImageMaker'
 import { EventLogger } from './events/EventLogger'
 import {
     CapRoverEventFactory,
     CapRoverEventType,
 } from './events/ICapRoverEvent'
-import ImageMaker, { BuildLogsManager } from './ImageMaker'
 import DomainResolveChecker from './system/DomainResolveChecker'
 import LoadBalancerManager from './system/LoadBalancerManager'
 import requireFromString = require('require-from-string')
@@ -180,7 +180,7 @@ class ServiceManager {
                         return self.imageMaker.ensureImage(
                             source,
                             appName,
-                            app.captainDefinitionRelativeFilePath,
+                            app.dockstationDefinitionRelativeFilePath,
                             appVersion,
                             envVars
                         )
@@ -244,9 +244,9 @@ class ServiceManager {
                     )
                 }
 
-                Logger.d(`Verifying Captain owns domain: ${customDomain}`)
+                Logger.d(`Verifying DockStation owns domain: ${customDomain}`)
 
-                return self.domainResolveChecker.verifyCaptainOwnsDomainOrThrow(
+                return self.domainResolveChecker.verifyDockStationOwnsDomainOrThrow(
                     customDomain,
                     undefined
                 )
@@ -338,7 +338,7 @@ class ServiceManager {
                         ERROR_FIRST_ENABLE_ROOT_SSL
                     )
                 }
-                return self.verifyCaptainOwnsGenericSubDomain(appName)
+                return self.verifyDockStationOwnsGenericSubDomain(appName)
             })
             .then(function () {
                 Logger.d(`Enabling SSL for: ${appName}`)
@@ -376,7 +376,7 @@ class ServiceManager {
             })
     }
 
-    verifyCaptainOwnsGenericSubDomain(appName: string) {
+    verifyDockStationOwnsGenericSubDomain(appName: string) {
         const self = this
 
         let rootDomain: string
@@ -398,9 +398,9 @@ class ServiceManager {
                 return `${appName}.${rootDomain}`
             })
             .then(function (domainName) {
-                Logger.d(`Verifying Captain owns domain: ${domainName}`)
+                Logger.d(`Verifying DockStation owns domain: ${domainName}`)
 
-                return self.domainResolveChecker.verifyCaptainOwnsDomainOrThrow(
+                return self.domainResolveChecker.verifyDockStationOwnsDomainOrThrow(
                     domainName,
                     undefined
                 )
@@ -631,7 +631,7 @@ class ServiceManager {
 
             console.log('-------------------------------'+new Date());
 
-            preDeployFunction = function (captainAppObj, dockerUpdateObject) {
+            preDeployFunction = function (dockstationAppObj, dockerUpdateObject) {
                 return Promise.resolve()
                         .then(function(){
                             console.log(JSON.stringify(dockerUpdateObject));
@@ -658,7 +658,7 @@ class ServiceManager {
         appName: string,
         description: string,
         instanceCount: number,
-        captainDefinitionRelativeFilePath: string,
+        dockstationDefinitionRelativeFilePath: string,
         envVars: IAppEnvVar[],
         volumes: IAppVolume[],
         tags: IAppTag[],
@@ -779,7 +779,7 @@ class ServiceManager {
                         appName,
                         description,
                         instanceCount,
-                        captainDefinitionRelativeFilePath,
+                        dockstationDefinitionRelativeFilePath,
                         envVars,
                         volumes,
                         tags,
@@ -862,7 +862,7 @@ class ServiceManager {
             .then(function () {
                 return dockerApi.getLogForService(
                     serviceName,
-                    CaptainConstants.configs.appLogSize,
+                    DockStationConstants.configs.appLogSize,
                     encoding
                 )
             })
@@ -920,7 +920,7 @@ class ServiceManager {
                     // update errors if they happen right away!
                     return dockerApi
                         .createServiceOnNodeId(
-                            CaptainConstants.configs.appPlaceholderImageName,
+                            DockStationConstants.configs.appPlaceholderImageName,
                             serviceName,
                             undefined,
                             undefined,

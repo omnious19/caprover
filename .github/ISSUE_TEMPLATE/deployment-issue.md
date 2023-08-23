@@ -14,7 +14,7 @@ assignees: ''
 
 What is the problem?
 
-If applicable, content of `captain-definition` file:
+If applicable, content of `dockstation-definition` file:
 
 Steps to reproduce the problem:
 

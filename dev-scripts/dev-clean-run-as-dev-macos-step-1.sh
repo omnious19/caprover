@@ -5,7 +5,7 @@ if ! [ $(id -u) = 0 ]; then
    exit 1
 fi
 
-# on macos Catalina and above, /captain is a symb link. we cannot remove the folder so we delete all files inside
-# rm -rf /captain && mkdir /captain
-rm -rf /captain/*
-chmod -R 777 /captain/
+# on macos Catalina and above, /dockstation is a symb link. we cannot remove the folder so we delete all files inside
+# rm -rf /dockstation && mkdir /dockstation
+rm -rf /dockstation/*
+chmod -R 777 /dockstation/

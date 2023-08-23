@@ -26,7 +26,7 @@ s
           }
        }
     },
-    "captainVersion": 4,
+    "dockstationVersion": 4,
     "caproverOneClickApp": {
        "variables": [
           {
@@ -51,7 +51,7 @@ services:
 ### ================================
 ### CAPROVER ONE CLICK APP SPECIFICS
 ### ================================
-captainVersion: 4
+dockstationVersion: 4
 caproverOneClickApp:
   variables:
     - id: $$cap_adminer_version

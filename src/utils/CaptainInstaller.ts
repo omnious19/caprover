@@ -1,7 +1,7 @@
 import externalIp = require('public-ip')
 import DockerApi from '../docker/DockerApi'
 import BackupManager from '../user/system/BackupManager'
-import CaptainConstants from './CaptainConstants'
+import DockStationConstants from './DockStationConstants'
 import EnvVar from './EnvVars'
 import http = require('http')
 import request = require('request')
@@ -118,7 +118,7 @@ function startServerOnPort_80_443_3000() {
 }
 
 function checkPortOrThrow(ipAddr: string, portToTest: number) {
-    if (CaptainConstants.isDebug || !!EnvVar.BY_PASS_PROXY_CHECK) {
+    if (DockStationConstants.isDebug || !!EnvVar.BY_PASS_PROXY_CHECK) {
         return Promise.resolve()
     }
 
@@ -145,7 +145,7 @@ function checkPortOrThrow(ipAddr: string, portToTest: number) {
             'A simple solution on Ubuntu systems is to run "ufw disable" (security risk)'
         )
         console.log('Or [recommended] just allowing necessary ports:')
-        console.log(CaptainConstants.disableFirewallCommand)
+        console.log(DockStationConstants.disableFirewallCommand)
         console.log('     ')
         console.log('     ')
         console.log('See docs for more details on how to fix firewall issues')
@@ -243,7 +243,7 @@ export function install() {
                 )
             }
 
-            if (CaptainConstants.isDebug) {
+            if (DockStationConstants.isDebug) {
                 return new Promise<string>(function (resolve, reject) {
                     DockerApi.get()
                         .swarmLeave(true)
@@ -277,17 +277,17 @@ export function install() {
             return checkPortOrThrow(myIp4, 3000)
         })
         .then(function () {
-            const imageName = CaptainConstants.configs.nginxImageName
+            const imageName = DockStationConstants.configs.nginxImageName
             console.log(`Pulling: ${imageName}`)
             return DockerApi.get().pullImage(imageName, undefined)
         })
         .then(function () {
-            const imageName = CaptainConstants.configs.appPlaceholderImageName
+            const imageName = DockStationConstants.configs.appPlaceholderImageName
             console.log(`Pulling: ${imageName}`)
             return DockerApi.get().pullImage(imageName, undefined)
         })
         .then(function () {
-            const imageName = CaptainConstants.certbotImageName
+            const imageName = DockStationConstants.certbotImageName
             console.log(`Pulling: ${imageName}`)
             return DockerApi.get().pullImage(imageName, undefined)
         })
@@ -295,7 +295,7 @@ export function install() {
             return backupManger.checkAndPrepareRestoration()
         })
         .then(function () {
-            if (CaptainConstants.configs.useExistingSwarm) {
+            if (DockStationConstants.configs.useExistingSwarm) {
                 return DockerApi.get().ensureSwarmExists()
             }
             return DockerApi.get().initSwarm(myIp4)
@@ -310,14 +310,14 @@ export function install() {
         .then(function (nodeId: string) {
             const volumeToMount = [
                 {
-                    hostPath: CaptainConstants.captainBaseDirectory,
-                    containerPath: CaptainConstants.captainBaseDirectory,
+                    hostPath: DockStationConstants.dockstationBaseDirectory,
+                    containerPath: DockStationConstants.dockstationBaseDirectory,
                 },
             ]
 
             const env = [] as IAppEnvVar[]
             env.push({
-                key: EnvVar.keys.IS_CAPTAIN_INSTANCE,
+                key: EnvVar.keys.IS_DOCKSTATION_INSTANCE,
                 value: '1',
             })
 
@@ -328,34 +328,34 @@ export function install() {
                 })
             }
 
-            if (EnvVar.CAPTAIN_DOCKER_API) {
+            if (EnvVar.DOCKSTATION_DOCKER_API) {
                 env.push({
-                    key: EnvVar.keys.CAPTAIN_DOCKER_API,
-                    value: EnvVar.CAPTAIN_DOCKER_API,
+                    key: EnvVar.keys.DOCKSTATION_DOCKER_API,
+                    value: EnvVar.DOCKSTATION_DOCKER_API,
                 })
             } else {
                 volumeToMount.push({
-                    hostPath: CaptainConstants.dockerSocketPath,
-                    containerPath: CaptainConstants.dockerSocketPath,
+                    hostPath: DockStationConstants.dockerSocketPath,
+                    containerPath: DockStationConstants.dockerSocketPath,
                 })
             }
 
             const ports: IAppPort[] = []
 
-            let captainNameAndVersion = `${CaptainConstants.configs.publishedNameOnDockerHub}:${CaptainConstants.configs.version}`
+            let dockstationNameAndVersion = `${DockStationConstants.configs.publishedNameOnDockerHub}:${DockStationConstants.configs.version}`
 
-            if (CaptainConstants.isDebug) {
-                captainNameAndVersion =
-                    CaptainConstants.configs.publishedNameOnDockerHub // debug doesn't have version.
+            if (DockStationConstants.isDebug) {
+                dockstationNameAndVersion =
+                    DockStationConstants.configs.publishedNameOnDockerHub // debug doesn't have version.
 
                 env.push({
-                    key: EnvVar.keys.CAPTAIN_IS_DEBUG,
-                    value: EnvVar.CAPTAIN_IS_DEBUG + '',
+                    key: EnvVar.keys.DOCKSTATION_IS_DEBUG,
+                    value: EnvVar.DOCKSTATION_IS_DEBUG + '',
                 })
 
                 volumeToMount.push({
-                    hostPath: CaptainConstants.debugSourceDirectory,
-                    containerPath: CaptainConstants.sourcePathInContainer,
+                    hostPath: DockStationConstants.debugSourceDirectory,
+                    containerPath: DockStationConstants.sourcePathInContainer,
                 })
 
                 ports.push({
@@ -367,13 +367,13 @@ export function install() {
             ports.push({
                 protocol: 'tcp',
                 publishMode: 'host',
-                containerPort: CaptainConstants.captainServiceExposedPort,
-                hostPort: CaptainConstants.captainServiceExposedPort,
+                containerPort: DockStationConstants.dockstationServiceExposedPort,
+                hostPort: DockStationConstants.dockstationServiceExposedPort,
             })
 
             return DockerApi.get().createServiceOnNodeId(
-                captainNameAndVersion,
-                CaptainConstants.captainServiceName,
+                dockstationNameAndVersion,
+                DockStationConstants.dockstationServiceName,
                 ports,
                 nodeId,
                 volumeToMount,

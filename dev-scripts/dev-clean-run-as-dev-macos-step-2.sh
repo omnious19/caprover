@@ -7,13 +7,13 @@ fi
 
 docker service rm $(docker service ls -q)
 sleep 1
-docker secret rm captain-salt
-docker build -t captain-debug -f dockerfile-dockstationdebug .
+docker secret rm dockstation-salt
+docker build -t dockstation-debug -f dockerfile-dockstationdebug .
 docker run \
-   -e "CAPTAIN_IS_DEBUG=1" \
+   -e "DOCKSTATION_IS_DEBUG=1" \
    -e "MAIN_NODE_IP_ADDRESS=127.0.0.1" \
    -v /var/run/docker.sock:/var/run/docker.sock \
-   -v /captain:/captain \
-   -v $(pwd):/usr/src/app captain-debug
+   -v /dockstation:/dockstation \
+   -v $(pwd):/usr/src/app dockstation-debug
 sleep 2s
-docker service logs captain-captain --follow
+docker service logs dockstation-dockstation --follow

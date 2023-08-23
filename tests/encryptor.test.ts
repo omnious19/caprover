@@ -1,7 +1,7 @@
-import CaptainEncryptor from '../src/utils/Encryptor'
+import DockStationEncryptor from '../src/utils/Encryptor'
 
 test('Testing Encryptor 1', () => {
-    const encryptor = new CaptainEncryptor(
+    const encryptor = new DockStationEncryptor(
         '8h9hasfasaaaaaaaaaaaaaa75h7553245235423452345235235235254h75h38'
     )
     const valueToBeEncrypter = 'qq'
@@ -11,7 +11,7 @@ test('Testing Encryptor 1', () => {
 })
 
 test('Testing Encryptor 2', () => {
-    const encryptor = new CaptainEncryptor(
+    const encryptor = new DockStationEncryptor(
         '8h9hasfasaaaaaaaaaaaaaa75h7553245235423452345235235235254h75h38'
     )
     const valueToBeEncrypter = 'q290852f98nb80nv8m8m bn83vn@ 8098m%#@%$5$@#52q'
@@ -23,7 +23,7 @@ test('Testing Encryptor 2', () => {
 test('Testing Encryptor - Key too short', () => {
     let value = 1
     try {
-        const encryptor = new CaptainEncryptor('short')
+        const encryptor = new DockStationEncryptor('short')
         if (encryptor) {
             value = 0
         }

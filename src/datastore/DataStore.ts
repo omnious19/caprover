@@ -3,8 +3,8 @@
  */
 import Configstore = require('configstore')
 import fs = require('fs-extra')
-import CaptainConstants from '../utils/CaptainConstants'
-import CaptainEncryptor from '../utils/Encryptor'
+import DockStationConstants from '../utils/DockStationConstants'
+import DockStationEncryptor from '../utils/Encryptor'
 import AppsDataStore from './AppsDataStore'
 import ProDataStore from './ProDataStore'
 import RegistriesDataStore from './RegistriesDataStore'
@@ -19,25 +19,25 @@ const HAS_REGISTRY_SSL = 'hasRegistrySsl'
 const EMAIL_ADDRESS = 'emailAddress'
 const NET_DATA_INFO = 'netDataInfo'
 const NGINX_BASE_CONFIG = 'nginxBaseConfig'
-const NGINX_CAPTAIN_CONFIG = 'nginxCaptainConfig'
+const NGINX_DOCKSTATION_CONFIG = 'nginxDockStationConfig'
 const CUSTOM_ONE_CLICK_APP_URLS = 'oneClickAppUrls'
 const FEATURE_FLAGS = 'featureFlags'
 
-const DEFAULT_CAPTAIN_ROOT_DOMAIN = 'dockstationlocalhost'
+const DEFAULT_DOCKSTATION_ROOT_DOMAIN = 'dockstationlocalhost'
 
 const DEFAULT_NGINX_BASE_CONFIG = fs
     .readFileSync(__dirname + '/../../template/base-nginx-conf.ejs')
     .toString()
-const DEFAULT_NGINX_CAPTAIN_CONFIG = fs
+const DEFAULT_NGINX_DOCKSTATION_CONFIG = fs
     .readFileSync(__dirname + '/../../template/root-nginx-conf.ejs')
     .toString()
 
 let DEFAULT_NGINX_CONFIG_FOR_APP_PATH =
     __dirname + '/../../template/server-block-conf.ejs'
 
-if (fs.pathExistsSync('/captain/data/server-block-conf-override.ejs')) {
+if (fs.pathExistsSync('/dockstation/data/server-block-conf-override.ejs')) {
     DEFAULT_NGINX_CONFIG_FOR_APP_PATH =
-        '/captain/data/server-block-conf-override.ejs'
+        '/dockstation/data/server-block-conf-override.ejs'
 }
 
 const DEFAULT_NGINX_CONFIG_FOR_APP = fs
@@ -45,7 +45,7 @@ const DEFAULT_NGINX_CONFIG_FOR_APP = fs
     .toString()
 
 class DataStore {
-    private encryptor: CaptainEncryptor
+    private encryptor: DockStationEncryptor
     private namespace: string
     private data: Configstore
     private appsDataStore: AppsDataStore
@@ -54,10 +54,10 @@ class DataStore {
 
     constructor(namespace: string) {
         const data = new Configstore(
-            `captain-store-${namespace}`, // This value seems to be unused
+            `dockstation-store-${namespace}`, // This value seems to be unused
             {},
             {
-                configPath: `${CaptainConstants.captainDataDirectory}/config-${namespace}.json`,
+                configPath: `${DockStationConstants.dockstationDataDirectory}/config-${namespace}.json`,
             }
         )
 
@@ -70,7 +70,7 @@ class DataStore {
     }
 
     setEncryptionSalt(salt: string) {
-        this.encryptor = new CaptainEncryptor(this.namespace + salt)
+        this.encryptor = new DockStationEncryptor(this.namespace + salt)
         this.appsDataStore.setEncryptor(this.encryptor)
         this.registriesDataStore.setEncryptor(this.encryptor)
     }
@@ -153,7 +153,7 @@ class DataStore {
     }
 
     getRootDomain() {
-        return this.data.get(CUSTOM_DOMAIN) || DEFAULT_CAPTAIN_ROOT_DOMAIN
+        return this.data.get(CUSTOM_DOMAIN) || DEFAULT_DOCKSTATION_ROOT_DOMAIN
     }
 
     hasCustomDomain() {
@@ -239,20 +239,20 @@ class DataStore {
                     byDefault: DEFAULT_NGINX_BASE_CONFIG,
                     customValue: self.data.get(NGINX_BASE_CONFIG),
                 },
-                captainConfig: {
-                    byDefault: DEFAULT_NGINX_CAPTAIN_CONFIG,
-                    customValue: self.data.get(NGINX_CAPTAIN_CONFIG),
+                dockstationConfig: {
+                    byDefault: DEFAULT_NGINX_DOCKSTATION_CONFIG,
+                    customValue: self.data.get(NGINX_DOCKSTATION_CONFIG),
                 },
             }
         })
     }
 
-    setNginxConfig(baseConfig: string, captainConfig: string) {
+    setNginxConfig(baseConfig: string, dockstationConfig: string) {
         const self = this
 
         return Promise.resolve().then(function () {
             self.data.set(NGINX_BASE_CONFIG, baseConfig)
-            self.data.set(NGINX_CAPTAIN_CONFIG, captainConfig)
+            self.data.set(NGINX_DOCKSTATION_CONFIG, dockstationConfig)
         })
     }
 

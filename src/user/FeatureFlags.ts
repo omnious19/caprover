@@ -1,6 +1,6 @@
 import axios from 'axios'
 import DataStore from '../datastore/DataStore'
-import CaptainConstants from '../utils/CaptainConstants'
+import DockStationConstants from '../utils/DockStationConstants'
 import Logger from '../utils/Logger'
 
 export default class FeatureFlags {
@@ -34,7 +34,7 @@ export default class FeatureFlags {
                     'https://api-v1.caprover.com/v2/featureflags',
                     {
                         params: {
-                            currentVersion: CaptainConstants.configs.version,
+                            currentVersion: DockStationConstants.configs.version,
                         },
                     }
                 )

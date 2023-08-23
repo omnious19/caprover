@@ -4,9 +4,9 @@ import DataStore from '../../datastore/DataStore'
 import DataStoreProvider from '../../datastore/DataStoreProvider'
 import DockerApi from '../../docker/DockerApi'
 import { IRegistryInfo, IRegistryTypes } from '../../models/IRegistryInfo'
-import CaptainConstants from '../../utils/CaptainConstants'
+import DockStationConstants from '../../utils/DockStationConstants'
 import Logger from '../../utils/Logger'
-import MigrateCaptainDuckDuck from '../../utils/MigrateCaptainDuckDuck'
+import MigrateDockStationDuckDuck from '../../utils/MigrateDockStationDuckDuck'
 import Utils from '../../utils/Utils'
 import Authenticator from '../Authenticator'
 import FeatureFlags from '../FeatureFlags'
@@ -34,7 +34,7 @@ interface ISuccessCallback {
     (success: boolean): void
 }
 
-class CaptainManager {
+class DockStationManager {
     private hasForceSsl: boolean
     private dataStore: DataStore
     private dockerApi: DockerApi
@@ -46,7 +46,7 @@ class CaptainManager {
     private myNodeId: string | undefined
     private inited: boolean
     private waitUntilRestarted: boolean
-    private captainSalt: string
+    private dockstationSalt: string
     private consecutiveHealthCheckFailCount: number
     private healthCheckUuid: string
 
@@ -55,7 +55,7 @@ class CaptainManager {
 
         this.hasForceSsl = false
         this.dataStore = DataStoreProvider.getDataStore(
-            CaptainConstants.rootNameSpace
+            DockStationConstants.rootNameSpace
         )
         this.dockerApi = dockerApi
         this.certbotManager = new CertbotManager(dockerApi)
@@ -71,7 +71,7 @@ class CaptainManager {
         this.myNodeId = undefined
         this.inited = false
         this.waitUntilRestarted = false
-        this.captainSalt = ''
+        this.dockstationSalt = ''
         this.consecutiveHealthCheckFailCount = 0
         this.healthCheckUuid = uuid()
         this.backupManager = new BackupManager()
@@ -90,7 +90,7 @@ class CaptainManager {
         self.refreshForceSslState()
             .then(function () {
                 return dockerApi.getNodeIdByServiceName(
-                    CaptainConstants.captainServiceName,
+                    DockStationConstants.dockstationServiceName,
                     0
                 )
             })
@@ -108,43 +108,43 @@ class CaptainManager {
             })
             .then(function (isManager) {
                 if (!isManager) {
-                    throw new Error('Captain should only run on a manager node')
+                    throw new Error('DockStation should only run on a manager node')
                 }
             })
             .then(function () {
                 Logger.d('Emptying generated and temp folders.')
 
-                return fs.emptyDir(CaptainConstants.captainRootDirectoryTemp)
+                return fs.emptyDir(DockStationConstants.dockstationRootDirectoryTemp)
             })
             .then(function () {
                 return fs.emptyDir(
-                    CaptainConstants.captainRootDirectoryGenerated
+                    DockStationConstants.dockstationRootDirectoryGenerated
                 )
             })
             .then(function () {
                 Logger.d('Ensuring directories are available on host. Started.')
 
-                return fs.ensureDir(CaptainConstants.letsEncryptEtcPath)
+                return fs.ensureDir(DockStationConstants.letsEncryptEtcPath)
             })
             .then(function () {
-                return fs.ensureDir(CaptainConstants.letsEncryptLibPath)
+                return fs.ensureDir(DockStationConstants.letsEncryptLibPath)
             })
             .then(function () {
-                return fs.ensureDir(CaptainConstants.captainStaticFilesDir)
+                return fs.ensureDir(DockStationConstants.dockstationStaticFilesDir)
             })
             .then(function () {
-                return fs.ensureDir(CaptainConstants.perAppNginxConfigPathBase)
+                return fs.ensureDir(DockStationConstants.perAppNginxConfigPathBase)
             })
             .then(function () {
-                return fs.ensureFile(CaptainConstants.baseNginxConfigPath)
+                return fs.ensureFile(DockStationConstants.baseNginxConfigPath)
             })
             .then(function () {
-                return fs.ensureDir(CaptainConstants.registryPathOnHost)
+                return fs.ensureDir(DockStationConstants.registryPathOnHost)
             })
             .then(function () {
                 return dockerApi.ensureOverlayNetwork(
-                    CaptainConstants.captainNetworkName,
-                    CaptainConstants.configs.overlayNetworkOverride
+                    DockStationConstants.dockstationNetworkName,
+                    DockStationConstants.configs.overlayNetworkOverride
                 )
             })
             .then(function () {
@@ -153,36 +153,36 @@ class CaptainManager {
                 )
 
                 return dockerApi.ensureServiceConnectedToNetwork(
-                    CaptainConstants.captainServiceName,
-                    CaptainConstants.captainNetworkName
+                    DockStationConstants.dockstationServiceName,
+                    DockStationConstants.dockstationNetworkName
                 )
             })
             .then(function () {
-                const valueIfNotExist = CaptainConstants.isDebug
+                const valueIfNotExist = DockStationConstants.isDebug
                     ? DEBUG_SALT
                     : uuid()
                 return dockerApi.ensureSecret(
-                    CaptainConstants.captainSaltSecretKey,
+                    DockStationConstants.dockstationSaltSecretKey,
                     valueIfNotExist
                 )
             })
             .then(function () {
                 return dockerApi.ensureSecretOnService(
-                    CaptainConstants.captainServiceName,
-                    CaptainConstants.captainSaltSecretKey
+                    DockStationConstants.dockstationServiceName,
+                    DockStationConstants.dockstationSaltSecretKey
                 )
             })
             .then(function (secretHadExistedBefore) {
                 if (!secretHadExistedBefore) {
                     return new Promise<void>(function () {
                         Logger.d(
-                            'I am halting here. I expect to get restarted in a few seconds due to a secret (captain salt) being updated.'
+                            'I am halting here. I expect to get restarted in a few seconds due to a secret (dockstation salt) being updated.'
                         )
                     })
                 }
             })
             .then(function () {
-                const secretFileName = `/run/secrets/${CaptainConstants.captainSaltSecretKey}`
+                const secretFileName = `/run/secrets/${DockStationConstants.dockstationSaltSecretKey}`
 
                 if (!fs.pathExistsSync(secretFileName)) {
                     throw new Error(
@@ -196,18 +196,18 @@ class CaptainManager {
                     throw new Error('Salt secret content is empty!')
                 }
 
-                self.captainSalt = secretContent
+                self.dockstationSalt = secretContent
 
                 return true
             })
             .then(function () {
-                return Authenticator.setMainSalt(self.getCaptainSalt())
+                return Authenticator.setMainSalt(self.getDockStationSalt())
             })
             .then(function () {
-                return dataStore.setEncryptionSalt(self.getCaptainSalt())
+                return dataStore.setEncryptionSalt(self.getDockStationSalt())
             })
             .then(function () {
-                return new MigrateCaptainDuckDuck(
+                return new MigrateDockStationDuckDuck(
                     dataStore,
                     Authenticator.getAuthenticator(dataStore.getNameSpace())
                 )
@@ -245,7 +245,7 @@ class CaptainManager {
             })
             .then(function () {
                 return self.backupManager.startRestorationIfNeededPhase2(
-                    self.getCaptainSalt(),
+                    self.getDockStationSalt(),
                     () => {
                         return self.ensureAllAppsInited()
                     }
@@ -271,7 +271,7 @@ class CaptainManager {
                     )
 
                 Logger.d(
-                    '**** Captain is initialized and ready to serve you! ****'
+                    '**** DockStation is initialized and ready to serve you! ****'
                 )
             })
             .catch(function (error) {
@@ -289,8 +289,8 @@ class CaptainManager {
 
     performHealthCheck() {
         const self = this
-        const captainPublicDomain = `${
-            CaptainConstants.configs.captainSubDomain
+        const dockstationPublicDomain = `${
+            DockStationConstants.configs.dockstationSubDomain
         }.${self.dataStore.getRootDomain()}`
 
         function scheduleNextHealthCheck() {
@@ -301,12 +301,12 @@ class CaptainManager {
         }
 
         // For debug build, we'll turn off health check
-        if (CaptainConstants.isDebug || !self.dataStore.hasCustomDomain()) {
+        if (DockStationConstants.isDebug || !self.dataStore.hasCustomDomain()) {
             scheduleNextHealthCheck()
             return
         }
 
-        function checkCaptainHealth(callback: ISuccessCallback) {
+        function checkDockStationHealth(callback: ISuccessCallback) {
             let callbackCalled = false
 
             setTimeout(function () {
@@ -318,7 +318,7 @@ class CaptainManager {
                 callback(false)
             }, TIMEOUT_HEALTH_CHECK)
 
-            if (CaptainConstants.configs.skipVerifyingDomains) {
+            if (DockStationConstants.configs.skipVerifyingDomains) {
                 setTimeout(function () {
                     if (callbackCalled) {
                         return
@@ -329,7 +329,7 @@ class CaptainManager {
                 return
             }
 
-            const url = `http://${captainPublicDomain}${CaptainConstants.healthCheckEndPoint}`
+            const url = `http://${dockstationPublicDomain}${DockStationConstants.healthCheckEndPoint}`
 
             request(
                 url,
@@ -362,8 +362,8 @@ class CaptainManager {
             }, TIMEOUT_HEALTH_CHECK)
 
             self.domainResolveChecker
-                .verifyCaptainOwnsDomainOrThrow(
-                    captainPublicDomain,
+                .verifyDockStationOwnsDomainOrThrow(
+                    dockstationPublicDomain,
                     '-healthcheck'
                 )
                 .then(function () {
@@ -385,7 +385,7 @@ class CaptainManager {
         }
 
         interface IChecks {
-            captainHealth: { value: boolean }
+            dockstationHealth: { value: boolean }
             nginxHealth: { value: boolean }
         }
 
@@ -393,7 +393,7 @@ class CaptainManager {
 
         function scheduleIfNecessary() {
             if (
-                !checksPerformed.captainHealth ||
+                !checksPerformed.dockstationHealth ||
                 !checksPerformed.nginxHealth
             ) {
                 return
@@ -401,9 +401,9 @@ class CaptainManager {
 
             let hasFailedCheck = false
 
-            if (!checksPerformed.captainHealth.value) {
+            if (!checksPerformed.dockstationHealth.value) {
                 Logger.w(
-                    `Captain health check failed: #${self.consecutiveHealthCheckFailCount} at ${captainPublicDomain}`
+                    `DockStation health check failed: #${self.consecutiveHealthCheckFailCount} at ${dockstationPublicDomain}`
                 )
                 hasFailedCheck = true
             }
@@ -429,8 +429,8 @@ class CaptainManager {
             }
         }
 
-        checkCaptainHealth(function (success) {
-            checksPerformed.captainHealth = {
+        checkDockStationHealth(function (success) {
+            checksPerformed.dockstationHealth = {
                 value: success,
             }
             scheduleIfNecessary()
@@ -479,14 +479,14 @@ class CaptainManager {
                     ),
                     self.dataStore,
                     self.dockerApi,
-                    CaptainManager.get().getLoadBalanceManager(),
+                    DockStationManager.get().getLoadBalanceManager(),
                     EventLoggerFactory.get(
                         new ProManager(
                             self.dataStore.getProDataStore(),
                             FeatureFlags.get(self.dataStore)
                         )
                     ).getLogger(),
-                    CaptainManager.get().getDomainResolveChecker()
+                    DockStationManager.get().getDomainResolveChecker()
                 )
                 Object.keys(apps).forEach((appName) => {
                     promises.push(function () {
@@ -519,14 +519,14 @@ class CaptainManager {
         return this.myNodeId
     }
 
-    getCaptainSalt() {
-        if (!this.captainSalt) {
-            const msg = 'Captain Salt is not set yet!!'
+    getDockStationSalt() {
+        if (!this.dockstationSalt) {
+            const msg = 'DockStation Salt is not set yet!!'
             Logger.e(msg)
             throw new Error(msg)
         }
 
-        return this.captainSalt
+        return this.dockstationSalt
     }
 
     updateNetDataInfo(netDataInfo: NetDataInfo) {
@@ -536,8 +536,8 @@ class CaptainManager {
         return Promise.resolve()
             .then(function () {
                 return dockerApi.ensureContainerStoppedAndRemoved(
-                    CaptainConstants.netDataContainerName,
-                    CaptainConstants.captainNetworkName
+                    DockStationConstants.netDataContainerName,
+                    DockStationConstants.dockstationNetworkName
                 )
             })
             .then(function () {
@@ -651,10 +651,10 @@ class CaptainManager {
                     }
 
                     return dockerApi.createStickyContainer(
-                        CaptainConstants.netDataContainerName,
-                        CaptainConstants.configs.netDataImageName,
+                        DockStationConstants.netDataContainerName,
+                        DockStationConstants.configs.netDataImageName,
                         vols,
-                        CaptainConstants.captainNetworkName,
+                        DockStationConstants.dockstationNetworkName,
                         envVars,
                         ['SYS_PTRACE'],
                         ['apparmor:unconfined'],
@@ -706,7 +706,7 @@ class CaptainManager {
             .then(function () {
                 return self.certbotManager.enableSsl(
                     `${
-                        CaptainConstants.configs.captainSubDomain
+                        DockStationConstants.configs.dockstationSubDomain
                     }.${self.dataStore.getRootDomain()}`
                 )
             })
@@ -717,7 +717,7 @@ class CaptainManager {
                 return self.dataStore.setHasRootSsl(true)
             })
             .then(function () {
-                Logger.d('Updating Load Balancer - CaptainManager.enableSsl')
+                Logger.d('Updating Load Balancer - DockStationManager.enableSsl')
                 return self.loadBalancerManager.rePopulateNginxConfigFile(
                     self.dataStore
                 )
@@ -767,24 +767,24 @@ class CaptainManager {
         })
     }
 
-    setNginxConfig(baseConfig: string, captainConfig: string) {
+    setNginxConfig(baseConfig: string, dockstationConfig: string) {
         const self = this
         return Promise.resolve()
             .then(function () {
-                return self.dataStore.setNginxConfig(baseConfig, captainConfig)
+                return self.dataStore.setNginxConfig(baseConfig, dockstationConfig)
             })
             .then(function () {
                 self.resetSelf()
             })
     }
 
-    changeCaptainRootDomain(requestedCustomDomain: string, force: boolean) {
+    changeDockStationRootDomain(requestedCustomDomain: string, force: boolean) {
         const self = this
         // Some DNS servers do not allow wild cards. Therefore this line may fail.
         // We still allow users to specify the domains in their DNS settings individually
         // SubDomains that need to be added are "dockstation" "registry." "app-name."
         const url = `${uuid()}.${requestedCustomDomain}:${
-            CaptainConstants.nginxPortNumber
+            DockStationConstants.nginxPortNumber
         }`
 
         return self.domainResolveChecker
@@ -846,7 +846,7 @@ class CaptainManager {
             })
             .then(function () {
                 Logger.d(
-                    'Updating Load Balancer - CaptainManager.changeCaptainRootDomain'
+                    'Updating Load Balancer - DockStationManager.changeDockStationRootDomain'
                 )
                 return self.loadBalancerManager.rePopulateNginxConfigFile(
                     self.dataStore
@@ -856,12 +856,12 @@ class CaptainManager {
 
     resetSelf() {
         const self = this
-        Logger.d('Captain is resetting itself!')
+        Logger.d('DockStation is resetting itself!')
         self.waitUntilRestarted = true
         return new Promise<void>(function (resolve, reject) {
             setTimeout(function () {
                 return self.dockerApi.updateService(
-                    CaptainConstants.captainServiceName,
+                    DockStationConstants.dockstationServiceName,
                     undefined,
                     undefined,
                     undefined,
@@ -881,14 +881,14 @@ class CaptainManager {
         })
     }
 
-    private static captainManagerInstance: CaptainManager | undefined
+    private static dockstationManagerInstance: DockStationManager | undefined
 
-    static get(): CaptainManager {
-        if (!CaptainManager.captainManagerInstance) {
-            CaptainManager.captainManagerInstance = new CaptainManager()
+    static get(): DockStationManager {
+        if (!DockStationManager.dockstationManagerInstance) {
+            DockStationManager.dockstationManagerInstance = new DockStationManager()
         }
-        return CaptainManager.captainManagerInstance
+        return DockStationManager.dockstationManagerInstance
     }
 }
 
-export default CaptainManager
+export default DockStationManager

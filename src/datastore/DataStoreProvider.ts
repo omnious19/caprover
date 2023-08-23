@@ -3,7 +3,7 @@
  */
 
 import ApiStatusCodes from '../api/ApiStatusCodes'
-import CaptainConstants from '../utils/CaptainConstants'
+import DockStationConstants from '../utils/DockStationConstants'
 import DataStore from './DataStore'
 
 const dataStoreCache: IHashMapGeneric<DataStore> = {}
@@ -17,7 +17,7 @@ export default {
             )
         }
 
-        if (namespace !== CaptainConstants.rootNameSpace) {
+        if (namespace !== DockStationConstants.rootNameSpace) {
             throw ApiStatusCodes.createError(
                 ApiStatusCodes.STATUS_ERROR_GENERIC,
                 'Namespace unknown'

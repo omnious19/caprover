@@ -2,12 +2,12 @@ import jwt = require('jsonwebtoken')
 import { v4 as uuid } from 'uuid'
 import ApiStatusCodes from '../api/ApiStatusCodes'
 import { UserJwt } from '../models/UserJwt'
-import CaptainConstants from '../utils/CaptainConstants'
+import DockStationConstants from '../utils/DockStationConstants'
 import EnvVar from '../utils/EnvVars'
 import Logger from '../utils/Logger'
 import bcrypt = require('bcryptjs')
 
-const captainDefaultPassword = EnvVar.DEFAULT_PASSWORD || 'captain42'
+const dockstationDefaultPassword = EnvVar.DEFAULT_PASSWORD || 'dockstation42'
 
 const COOKIE_AUTH_SUFFIX = 'cookie-'
 const WEBHOOK_APP_PUSH_SUFFIX = '-webhook-app-push'
@@ -29,7 +29,7 @@ class Authenticator {
     constructor(secret: string, namespace: string) {
         this.encryptionKey = secret + namespace // making encryption key unique per namespace!
         this.namespace = namespace
-        this.tokenVersion = CaptainConstants.isDebug ? 'test' : uuid()
+        this.tokenVersion = DockStationConstants.isDebug ? 'test' : uuid()
     }
 
     changepass(oldPass: string, newPass: string, savedHashedPassword: string) {
@@ -75,7 +75,7 @@ class Authenticator {
             password = password || ''
 
             if (!savedHashedPassword) {
-                return captainDefaultPassword === password
+                return dockstationDefaultPassword === password
             }
 
             return bcrypt.compareSync(
@@ -323,10 +323,10 @@ class Authenticator {
         }
 
         if (!authenticatorCache[namespace]) {
-            const captainSalt = Authenticator.mainSalt
-            if (captainSalt) {
+            const dockstationSalt = Authenticator.mainSalt
+            if (dockstationSalt) {
                 authenticatorCache[namespace] = new Authenticator(
-                    captainSalt,
+                    dockstationSalt,
                     namespace
                 )
             }

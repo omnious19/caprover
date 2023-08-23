@@ -3,8 +3,8 @@ import ApiStatusCodes from '../api/ApiStatusCodes'
 import { IBuiltImage } from '../models/IBuiltImage'
 import Authenticator from '../user/Authenticator'
 import ApacheMd5 from '../utils/ApacheMd5'
-import CaptainConstants from '../utils/CaptainConstants'
-import CaptainEncryptor from '../utils/Encryptor'
+import DockStationConstants from '../utils/DockStationConstants'
+import DockStationEncryptor from '../utils/Encryptor'
 import Logger from '../utils/Logger'
 import Utils from '../utils/Utils'
 import configstore = require('configstore')
@@ -21,7 +21,7 @@ function isNameAllowed(name: string) {
         /[a-z0-9]$/.test(name) &&
         /^[a-z0-9\-]+$/.test(name) &&
         name.indexOf('--') < 0
-    return isNameFormattingOk && ['captain', 'registry'].indexOf(name) < 0
+    return isNameFormattingOk && ['dockstation', 'registry'].indexOf(name) < 0
 }
 
 function isPortValid(portNumber: number) {
@@ -29,11 +29,11 @@ function isPortValid(portNumber: number) {
 }
 
 class AppsDataStore {
-    private encryptor: CaptainEncryptor
+    private encryptor: DockStationEncryptor
 
     constructor(private data: configstore, private namepace: string) {}
 
-    setEncryptor(encryptor: CaptainEncryptor) {
+    setEncryptor(encryptor: DockStationEncryptor) {
         this.encryptor = encryptor
     }
 
@@ -271,10 +271,10 @@ class AppsDataStore {
                 allAppsUnencrypted[appName] = allApps[appName]
                 const appUnencrypted = allAppsUnencrypted[appName]
 
-                // captainDefinitionFilePath added in v1.2.0, we need to backfill if it doesn't exists.
-                appUnencrypted.captainDefinitionRelativeFilePath =
-                    appUnencrypted.captainDefinitionRelativeFilePath ||
-                    CaptainConstants.defaultCaptainDefinitionPath
+                // dockstationDefinitionFilePath added in v1.2.0, we need to backfill if it doesn't exists.
+                appUnencrypted.dockstationDefinitionRelativeFilePath =
+                    appUnencrypted.dockstationDefinitionRelativeFilePath ||
+                    DockStationConstants.defaultDockStationDefinitionPath
 
                 const appSave = allApps[appName] as IAppDefSaved
 
@@ -560,7 +560,7 @@ class AppsDataStore {
             // Drop older versions
             app.versions = Utils.dropFirstElements(
                 app.versions,
-                CaptainConstants.configs.maxVersionHistory - 1
+                DockStationConstants.configs.maxVersionHistory - 1
             )
 
             const versions = app.versions
@@ -613,7 +613,7 @@ class AppsDataStore {
         appName: string,
         description: string,
         instanceCount: number,
-        captainDefinitionRelativeFilePath: string,
+        dockstationDefinitionRelativeFilePath: string,
         envVars: IAppEnvVar[],
         volumes: IAppVolume[],
         tags: IAppTag[],
@@ -690,9 +690,9 @@ class AppsDataStore {
                     appObj.instanceCount = instanceCount
                 }
 
-                if (captainDefinitionRelativeFilePath) {
-                    appObj.captainDefinitionRelativeFilePath =
-                        captainDefinitionRelativeFilePath + ''
+                if (dockstationDefinitionRelativeFilePath) {
+                    appObj.dockstationDefinitionRelativeFilePath =
+                        dockstationDefinitionRelativeFilePath + ''
                 }
 
                 appObj.notExposeAsWebApp = !!notExposeAsWebApp
@@ -888,9 +888,9 @@ class AppsDataStore {
                 hasPersistentData: !!hasPersistentData,
                 description: '',
                 instanceCount: 1,
-                captainDefinitionRelativeFilePath:
-                    CaptainConstants.defaultCaptainDefinitionPath,
-                networks: [CaptainConstants.captainNetworkName],
+                dockstationDefinitionRelativeFilePath:
+                    DockStationConstants.defaultDockStationDefinitionPath,
+                networks: [DockStationConstants.dockstationNetworkName],
                 envVars: [],
                 volumes: [],
                 ports: [],

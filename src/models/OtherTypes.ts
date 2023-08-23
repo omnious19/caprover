@@ -1,5 +1,5 @@
-export type CaptainError = {
-    captainErrorType: number
+export type DockStationError = {
+    dockstationErrorType: number
     apiMessage: string
 }
 

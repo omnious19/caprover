@@ -33,9 +33,9 @@ let version = ''
 
 Promise.resolve()
     .then(function () {
-        version = require('../built/utils/CaptainConstants').default.configs
+        version = require('../built/utils/DockStationConstants').default.configs
             .version
-        publishedNameOnDockerHub = require('../built/utils/CaptainConstants')
+        publishedNameOnDockerHub = require('../built/utils/DockStationConstants')
             .default.configs.publishedNameOnDockerHub
 
         if (!version || !publishedNameOnDockerHub) {

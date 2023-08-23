@@ -1,5 +1,5 @@
 
-# Default catch-all page. e.g. if you enter SOME-RANDOM-CHARS.captainroot.domain.com
+# Default catch-all page. e.g. if you enter SOME-RANDOM-CHARS.dockstationroot.domain.com
     server {
 
         # Catch all HTTP
@@ -36,7 +36,7 @@
     }
 
 
-# Captain dashboard at dockstationcaptainroot.domain.com
+# DockStation dashboard at dockstationdockstationroot.domain.com
     server {
 
 	listen       80;
@@ -114,14 +114,14 @@
         }
         
         # Used by CapRover for health check
-        location /.well-known/captain-identifier {
+        location /.well-known/dockstation-identifier {
             root <%-dockstationstaticWebRoot%>;
         }
     }
 
 
 
-# Built-in Docker Registry at registry.captainroot.domain.com
+# Built-in Docker Registry at registry.dockstationroot.domain.com
 # Port 80/443 is used by Let's Encrypt to support HTTPS
 # But the Registry engine runs on port 996
     server {

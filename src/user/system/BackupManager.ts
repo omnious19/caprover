@@ -8,7 +8,7 @@ import ApiStatusCodes from '../../api/ApiStatusCodes'
 import DockerApi from '../../docker/DockerApi'
 import DockerUtils from '../../docker/DockerUtils'
 import { BackupMeta, RestoringInfo } from '../../models/BackupMeta'
-import CaptainConstants from '../../utils/CaptainConstants'
+import DockStationConstants from '../../utils/DockStationConstants'
 import Logger from '../../utils/Logger'
 import Utils from '../../utils/Utils'
 import Authenticator from '../Authenticator'
@@ -21,15 +21,15 @@ const IP_PLACEHOLDER = 'replace-me-with-new-ip-or-empty-see-docs'
 const BACKUP_JSON = 'backup.json'
 const RESTORE_INSTRUCTIONS = 'restore-instructions.json'
 
-const RESTORE_INSTRUCTIONS_ABS_PATH = `${CaptainConstants.restoreDirectoryPath}/${RESTORE_INSTRUCTIONS}`
+const RESTORE_INSTRUCTIONS_ABS_PATH = `${DockStationConstants.restoreDirectoryPath}/${RESTORE_INSTRUCTIONS}`
 
 export interface IBackupCallbacks {
     getNodesInfo: () => Promise<ServerDockerInfo[]>
-    getCaptainSalt: () => string
+    getDockStationSalt: () => string
     getCertbotManager: () => CertbotManager
 }
 
-const BACKUP_META_DATA_ABS_PATH = `${CaptainConstants.restoreDirectoryPath}/meta/${BACKUP_JSON}`
+const BACKUP_META_DATA_ABS_PATH = `${DockStationConstants.restoreDirectoryPath}/meta/${BACKUP_JSON}`
 export default class BackupManager {
     private longOperationInProgress: boolean
 
@@ -56,11 +56,11 @@ export default class BackupManager {
         return !!this.longOperationInProgress
     }
 
-    startRestorationIfNeededPhase1(captainIpAddress: string) {
-        // if (/captain/restore/restore-instructions.json does exist):
+    startRestorationIfNeededPhase1(dockstationIpAddress: string) {
+        // if (/dockstation/restore/restore-instructions.json does exist):
         // - Connect all extra nodes via SSH and get their NodeID
         // - Replace the nodeId in apps with the new nodeId based on restore-instructions.json
-        // - Create a captain-salt secret using the data in restore
+        // - Create a dockstation-salt secret using the data in restore
         // - Copy restore files to proper places
 
         if (!fs.pathExistsSync(RESTORE_INSTRUCTIONS_ABS_PATH)) return
@@ -82,7 +82,7 @@ export default class BackupManager {
                         if (oldN.nodeData.ip === n.oldIp) {
                             oldNodeIdToNewIpMap[oldN.nodeData.nodeId] =
                                 n.newIp === CURRENT_NODE_DONT_CHANGE
-                                    ? captainIpAddress
+                                    ? dockstationIpAddress
                                     : n.newIp
                             if (oldN.nodeData.type === 'manager') {
                                 isManager = true
@@ -105,7 +105,7 @@ export default class BackupManager {
                                     DockerApi.get(),
                                     'root',
                                     22,
-                                    captainIpAddress,
+                                    dockstationIpAddress,
                                     isManager,
                                     NEW_IP,
                                     fs.readFileSync(PRIVATE_KEY_PATH, 'utf8')
@@ -151,7 +151,7 @@ export default class BackupManager {
                 }
 
                 const configFilePathRestoring =
-                    CaptainConstants.restoreDirectoryPath +
+                    DockStationConstants.restoreDirectoryPath +
                     '/data/config-dockstationjson'
                 const configData: {
                     appDefinitions: IHashMapGeneric<IAppDefSaved>
@@ -198,14 +198,14 @@ export default class BackupManager {
                 Logger.d('Setting up salt...')
 
                 return DockerApi.get().ensureSecret(
-                    CaptainConstants.captainSaltSecretKey,
+                    DockStationConstants.dockstationSaltSecretKey,
                     salt
                 )
             })
             .then(function () {
                 return fs.move(
-                    CaptainConstants.restoreDirectoryPath + '/data',
-                    CaptainConstants.captainDataDirectory
+                    DockStationConstants.restoreDirectoryPath + '/data',
+                    DockStationConstants.dockstationDataDirectory
                 )
             })
             .then(function () {
@@ -216,13 +216,13 @@ export default class BackupManager {
     }
 
     startRestorationIfNeededPhase2(
-        captainSalt: string,
+        dockstationSalt: string,
         ensureAllAppsInited: () => Promise<void>
     ) {
-        // if (/captain/restore/restore.json exists) GO TO RESTORE MODE:
-        // - Double check salt against "meta/captain-salt"
+        // if (/dockstation/restore/restore.json exists) GO TO RESTORE MODE:
+        // - Double check salt against "meta/dockstation-salt"
         // - Iterate over all APPs and make sure they are inited properly
-        // - Delete /captain/restore
+        // - Delete /dockstation/restore
         // - Wait until things settle (1 minute...)
 
         return Promise.resolve() //
@@ -239,9 +239,9 @@ export default class BackupManager {
                     })
                     .then(function (data: BackupMeta) {
                         const restoringSalt = data.salt
-                        if (restoringSalt !== captainSalt) {
+                        if (restoringSalt !== dockstationSalt) {
                             throw new Error(
-                                `Salt does not match the restoration data: ${captainSalt} vs  ${restoringSalt}`
+                                `Salt does not match the restoration data: ${dockstationSalt} vs  ${restoringSalt}`
                             )
                         }
 
@@ -254,7 +254,7 @@ export default class BackupManager {
                         return Utils.getDelayedPromise(20000)
                     })
                     .then(function () {
-                        return fs.remove(CaptainConstants.restoreDirectoryPath)
+                        return fs.remove(DockStationConstants.restoreDirectoryPath)
                     })
             })
     }
@@ -265,7 +265,7 @@ export default class BackupManager {
             .then(function () {
                 let promise = Promise.resolve()
 
-                if (fs.pathExistsSync(CaptainConstants.restoreTarFilePath)) {
+                if (fs.pathExistsSync(DockStationConstants.restoreTarFilePath)) {
                     Logger.d(
                         'Backup file found! Starting restoration process...'
                     )
@@ -484,21 +484,21 @@ export default class BackupManager {
     /**
      * By the time this method finishes, the instructions will be ready at
      *
-     * /captain/restore/restore-instructions.json
+     * /dockstation/restore/restore-instructions.json
      *
      */
     private createRestorationInstructionFile() {
         const self = this
         return Promise.resolve() //
             .then(function () {
-                const dirPath = CaptainConstants.restoreDirectoryPath
+                const dirPath = DockStationConstants.restoreDirectoryPath
 
                 if (!fs.statSync(dirPath).isDirectory())
                     throw new Error('restore directory is not a directory!!')
 
                 if (fs.pathExistsSync(RESTORE_INSTRUCTIONS_ABS_PATH)) {
                     throw new Error(
-                        'Restore instruction already exists! Cleanup your /captain directory and start over.'
+                        'Restore instruction already exists! Cleanup your /dockstation directory and start over.'
                     )
                 }
 
@@ -511,7 +511,7 @@ export default class BackupManager {
                         )
 
                         const configData = fs.readJsonSync(
-                            CaptainConstants.restoreDirectoryPath +
+                            DockStationConstants.restoreDirectoryPath +
                                 '/data/config-dockstationjson'
                         )
 
@@ -556,7 +556,7 @@ export default class BackupManager {
                     newIp: IP_PLACEHOLDER,
                     oldIp: s.ip,
                     privateKeyPath:
-                        CaptainConstants.captainBaseDirectory + '/id_rsa',
+                        DockStationConstants.dockstationBaseDirectory + '/id_rsa',
                     user: 'root',
                 })
             }
@@ -579,21 +579,21 @@ export default class BackupManager {
     }
 
     private extractBackupContentAndRemoveTar() {
-        if (!fs.statSync(CaptainConstants.restoreTarFilePath).isFile())
+        if (!fs.statSync(DockStationConstants.restoreTarFilePath).isFile())
             throw new Error('restore tar file is not a file!!')
 
         return Promise.resolve() //
             .then(function () {
-                return fs.ensureDir(CaptainConstants.restoreDirectoryPath)
+                return fs.ensureDir(DockStationConstants.restoreDirectoryPath)
             })
             .then(function () {
                 return tar
                     .extract({
-                        file: CaptainConstants.restoreTarFilePath,
-                        cwd: CaptainConstants.restoreDirectoryPath,
+                        file: DockStationConstants.restoreTarFilePath,
+                        cwd: DockStationConstants.restoreDirectoryPath,
                     })
                     .then(function () {
-                        return fs.remove(CaptainConstants.restoreTarFilePath)
+                        return fs.remove(DockStationConstants.restoreTarFilePath)
                     })
                     .then(function () {
                         return Promise.resolve(true)
@@ -628,13 +628,13 @@ export default class BackupManager {
             .then(function () {
                 self.lock()
 
-                // Check if exist /captain/temp/backup, delete directory
-                // Create directory /captain/temp/backup/raw
-                // Copy /captain/data to .../backup/raw/data
+                // Check if exist /dockstation/temp/backup, delete directory
+                // Create directory /dockstation/temp/backup/raw
+                // Copy /dockstation/data to .../backup/raw/data
                 // Ensure .../backup/raw/meta/backup.json
                 // Create tar file FROM: .../backup/raw/   TO: .../backup/backup.tar
 
-                const RAW = CaptainConstants.captainRootDirectoryBackup + '/raw'
+                const RAW = DockStationConstants.dockstationRootDirectoryBackup + '/raw'
 
                 Logger.d('Creating backup...')
 
@@ -654,7 +654,7 @@ export default class BackupManager {
                         // https://github.com/jprichardson/node-fs-extra/issues/638
                         return new Promise(function (resolve, reject) {
                             const child = exec(
-                                `mkdir -p {dest} && cp -rp  ${CaptainConstants.captainDataDirectory} ${dest}`
+                                `mkdir -p {dest} && cp -rp  ${DockStationConstants.dockstationDataDirectory} ${dest}`
                             )
                             child.addListener('error', reject)
                             child.addListener('exit', resolve)
@@ -669,13 +669,13 @@ export default class BackupManager {
                         nodeInfo = nodes
 
                         return self.saveMetaFile(`${RAW}/meta/${BACKUP_JSON}`, {
-                            salt: iBackupCallbacks.getCaptainSalt(),
+                            salt: iBackupCallbacks.getDockStationSalt(),
                             nodes: nodes,
                         })
                     })
                     .then(function () {
                         const tarFilePath =
-                            CaptainConstants.captainRootDirectoryBackup +
+                            DockStationConstants.dockstationRootDirectoryBackup +
                             '/backup.tar'
 
                         Logger.d(`Creating tar file: ${tarFilePath}`)
@@ -701,7 +701,7 @@ export default class BackupManager {
                             })
                     })
                     .then(function (tarFilePath) {
-                        const namespace = CaptainConstants.rootNameSpace
+                        const namespace = DockStationConstants.rootNameSpace
                         let mainIP = ''
 
                         nodeInfo.forEach((n) => {
@@ -711,7 +711,7 @@ export default class BackupManager {
 
                         const now = moment()
                         const newName = `${
-                            CaptainConstants.captainDownloadsDirectory
+                            DockStationConstants.dockstationDownloadsDirectory
                         }/${namespace}/caprover-backup-${`${now.format(
                             'YYYY_MM_DD-HH_mm_ss'
                         )}-${now.valueOf()}`}${`-ip-${mainIP}.tar`}`
@@ -754,10 +754,10 @@ export default class BackupManager {
         return Promise.resolve() //
             .then(function () {
                 if (
-                    fs.existsSync(CaptainConstants.captainRootDirectoryBackup)
+                    fs.existsSync(DockStationConstants.dockstationRootDirectoryBackup)
                 ) {
                     return fs.remove(
-                        CaptainConstants.captainRootDirectoryBackup
+                        DockStationConstants.dockstationRootDirectoryBackup
                     )
                 }
             })

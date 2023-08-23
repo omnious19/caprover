@@ -1,7 +1,7 @@
 import request = require('request')
 import axios from 'axios'
 import DockerApi from '../../docker/DockerApi'
-import CaptainConstants from '../../utils/CaptainConstants'
+import DockStationConstants from '../../utils/DockStationConstants'
 import Logger from '../../utils/Logger'
 import DockerRegistryHelper from '../DockerRegistryHelper'
 
@@ -12,7 +12,7 @@ class VersionManager {
         const dockerApi = DockerApi.get()
         this.dockerApi = dockerApi
     }
-    private getCaptainImageTagsFromOfficialApi(
+    private getDockStationImageTagsFromOfficialApi(
         currentVersion: string
     ): Promise<{
         currentVersion: string
@@ -60,14 +60,14 @@ class VersionManager {
             })
     }
 
-    getCaptainImageTags() {
+    getDockStationImageTags() {
         if (
             'caprover/caprover' ===
-            CaptainConstants.configs.publishedNameOnDockerHub
+            DockStationConstants.configs.publishedNameOnDockerHub
         ) {
             // For the official image use our official API.
-            return this.getCaptainImageTagsFromOfficialApi(
-                CaptainConstants.configs.version
+            return this.getDockStationImageTagsFromOfficialApi(
+                DockStationConstants.configs.version
             )
         }
 
@@ -75,14 +75,14 @@ class VersionManager {
         // - The API contract is not guaranteed to always be the same, it might break in the future
         // - This method does not return the changeLogMessage
 
-        const url = `https://hub.docker.com/v2/repositories/${CaptainConstants.configs.publishedNameOnDockerHub}/tags`
+        const url = `https://hub.docker.com/v2/repositories/${DockStationConstants.configs.publishedNameOnDockerHub}/tags`
 
         return new Promise<string[]>(function (resolve, reject) {
             request(
                 url,
 
                 function (error, response, body) {
-                    if (CaptainConstants.isDebug) {
+                    if (DockStationConstants.isDebug) {
                         resolve(['v0.0.1'])
                         return
                     }
@@ -106,8 +106,8 @@ class VersionManager {
                 }
             )
         }).then(function (tagList) {
-            const currentVersion = CaptainConstants.configs.version.split('.')
-            let latestVersion = CaptainConstants.configs.version.split('.')
+            const currentVersion = DockStationConstants.configs.version.split('.')
+            let latestVersion = DockStationConstants.configs.version.split('.')
 
             let canUpdate = false
 
@@ -149,12 +149,12 @@ class VersionManager {
         })
     }
 
-    updateCaptain(
+    updateDockStation(
         versionTag: string,
         dockerRegistryHelper: DockerRegistryHelper
     ) {
         const self = this
-        const providedImageName = `${CaptainConstants.configs.publishedNameOnDockerHub}:${versionTag}`
+        const providedImageName = `${DockStationConstants.configs.publishedNameOnDockerHub}:${versionTag}`
         return Promise.resolve()
             .then(function () {
                 return dockerRegistryHelper.getDockerAuthObjectForImageName(
@@ -166,7 +166,7 @@ class VersionManager {
             })
             .then(function () {
                 return self.dockerApi.updateService(
-                    CaptainConstants.captainServiceName,
+                    DockStationConstants.dockstationServiceName,
                     providedImageName,
                     undefined,
                     undefined,
@@ -185,13 +185,13 @@ class VersionManager {
             })
     }
 
-    private static captainManagerInstance: VersionManager | undefined
+    private static dockstationManagerInstance: VersionManager | undefined
 
     static get(): VersionManager {
-        if (!VersionManager.captainManagerInstance) {
-            VersionManager.captainManagerInstance = new VersionManager()
+        if (!VersionManager.dockstationManagerInstance) {
+            VersionManager.dockstationManagerInstance = new VersionManager()
         }
-        return VersionManager.captainManagerInstance
+        return VersionManager.dockstationManagerInstance
     }
 }
 

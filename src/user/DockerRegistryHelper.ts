@@ -128,7 +128,7 @@ class DockerRegistryHelper {
                             serveraddress: element.registryDomain,
                             username: element.registryUser,
                             password: element.registryPassword,
-                            // email: CaptainConstants.defaultEmail, // email is optional
+                            // email: DockStationConstants.defaultEmail, // email is optional
                         }
                     }
                 }
@@ -156,7 +156,7 @@ class DockerRegistryHelper {
                                 serveraddress: element.registryDomain,
                                 username: element.registryUser,
                                 password: element.registryPassword,
-                                // email: CaptainConstants.defaultEmail, // email is optional
+                                // email: DockStationConstants.defaultEmail, // email is optional
                             }
                         }
                     }

@@ -6,18 +6,18 @@ import {
     IRegistryType,
     IRegistryTypes,
 } from '../models/IRegistryInfo'
-import CaptainEncryptor from '../utils/Encryptor'
+import DockStationEncryptor from '../utils/Encryptor'
 import configstore = require('configstore')
 
 const DOCKER_REGISTRIES = 'dockerRegistries'
 const DEFAULT_DOCKER_REGISTRY_ID = 'defaultDockerRegId'
 
 class RegistriesDataStore {
-    private encryptor: CaptainEncryptor
+    private encryptor: DockStationEncryptor
 
     constructor(private data: configstore, public namepace: string) {}
 
-    setEncryptor(encryptor: CaptainEncryptor) {
+    setEncryptor(encryptor: DockStationEncryptor) {
         this.encryptor = encryptor
     }
 

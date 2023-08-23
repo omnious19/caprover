@@ -24,7 +24,7 @@ The goal is to make the common use-cases exposed via simple controls on UI while
 
 ### Running backend dev environment
 
-First, you need a Captain instance running in debug mode, this can be a remote server, a VM on your local machine,
+First, you need a DockStation instance running in debug mode, this can be a remote server, a VM on your local machine,
 or your local machine itself. Needless to say, Docker is required (same minimum version as mentioned in README). Ubuntu is the best dev environment for CapRover.
 
 Log in to your machine, clone the git repo and run the following lines:
@@ -48,19 +48,19 @@ npm run dev
 ##### Prepare your system (for Catalina and above)
 
 Because of security restriction we have more step to apply on macOs.
-Create a folder wherever you want (for me it will be /opt/captain).
+Create a folder wherever you want (for me it will be /opt/dockstation).
 Link this folder to the root folder (Apple does not allow to create folder on the root but you can do it with a symb link by adding the file in `/etc/synthetic.conf` [see](https://stackoverflow.com/questions/58396821/what-is-the-proper-way-to-create-a-root-sym-link-in-catalina))
 (don't panic id the file does not exist, if you create it will work well.)
 
 1. `sudo vi /etc/synthetic.conf`
-2. add `captain opt/captain` into this file (note this is a tab and not a space ((Ctrl-V + Tab) character))
+2. add `dockstation opt/dockstation` into this file (note this is a tab and not a space ((Ctrl-V + Tab) character))
 3. reboot
 4. Prepare your docker system
 
 ##### Prepare your docker (for all macOs User)
 
-> You need to add `/captain` to shared paths.  
-> To do so, click on the Docker icon -> Preferences -> Ressources -> File Sharing and add `/captain`
+> You need to add `/dockstation` to shared paths.  
+> To do so, click on the Docker icon -> Preferences -> Ressources -> File Sharing and add `/dockstation`
 
 #####
 
@@ -82,7 +82,7 @@ The main differences between the release and debug mode are:
 -   an additional endpoint is available at `/force-exit` which force restarts the backend service
 -   static resources (including front end app) are not being served in debug build.
 
-Captain by default uses `dockstationlocalhost` as its root domain. It's not always needed, but if you need a root
+DockStation by default uses `dockstationlocalhost` as its root domain. It's not always needed, but if you need a root
 domain for your development, you can simply run a local DNS server on your local machine and point
 `*.dockstationlocalhost` (wild card domain) to your local IP. A simple `hosts` change won't be useful as we need a wildcard entry.
 

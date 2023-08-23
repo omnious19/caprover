@@ -2,8 +2,8 @@ import { copy, ensureDir, ensureFile, readJson, removeSync } from 'fs-extra'
 import { isDeepStrictEqual } from 'util'
 import { RestoringInfo } from '../src/models/BackupMeta'
 import BackupManager from '../src/user/system/BackupManager'
-import CaptainConstants from '../src/utils/CaptainConstants'
-const BACKUP_FILE_PATH_ABSOLUTE = '/captain/backup.tar'
+import DockStationConstants from '../src/utils/DockStationConstants'
+const BACKUP_FILE_PATH_ABSOLUTE = '/dockstation/backup.tar'
 
 function cleanup() {
     return Promise.resolve()
@@ -14,10 +14,10 @@ function cleanup() {
             return removeSync(BACKUP_FILE_PATH_ABSOLUTE)
         })
         .then(function () {
-            return ensureDir(CaptainConstants.restoreDirectoryPath)
+            return ensureDir(DockStationConstants.restoreDirectoryPath)
         })
         .then(function () {
-            return removeSync(CaptainConstants.restoreDirectoryPath)
+            return removeSync(DockStationConstants.restoreDirectoryPath)
         })
 }
 
@@ -61,7 +61,7 @@ function backupTests() {
             })
             .then(function () {
                 return readJson(
-                    CaptainConstants.restoreDirectoryPath +
+                    DockStationConstants.restoreDirectoryPath +
                         '/restore-instructions.json'
                 )
             })

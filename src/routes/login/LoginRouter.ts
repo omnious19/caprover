@@ -8,8 +8,8 @@ import {
     CapRoverEventFactory,
     CapRoverEventType,
 } from '../../user/events/ICapRoverEvent'
-import CaptainConstants from '../../utils/CaptainConstants'
 import CircularQueue from '../../utils/CircularQueue'
+import DockStationConstants from '../../utils/DockStationConstants'
 
 const router = express.Router()
 
@@ -86,7 +86,7 @@ router.post('/', function (req, res, next) {
             )
         })
         .then(function (cookieAuth) {
-            res.cookie(CaptainConstants.headerCookieAuth, cookieAuth)
+            res.cookie(DockStationConstants.headerCookieAuth, cookieAuth)
             const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Login succeeded'
@@ -103,8 +103,8 @@ router.post('/', function (req, res, next) {
             return new Promise(function (resolve, reject) {
                 if (
                     err &&
-                    err.captainErrorType &&
-                    err.captainErrorType ===
+                    err.dockstationErrorType &&
+                    err.dockstationErrorType ===
                         ApiStatusCodes.STATUS_WRONG_PASSWORD
                 ) {
                     failedLoginCircularTimestamps.push(new Date().getTime())

@@ -4,10 +4,10 @@ import DataStore from '../datastore/DataStore'
 import DockerApi from '../docker/DockerApi'
 import { IRegistryTypes } from '../models/IRegistryInfo'
 import Authenticator from '../user/Authenticator'
-import CaptainConstants from './CaptainConstants'
+import DockStationConstants from './DockStationConstants'
 import Logger from './Logger'
 
-export default class MigrateCaptainDuckDuck {
+export default class MigrateDockStationDuckDuck {
     private oldFilePath: string
     private oldData: any
     constructor(
@@ -15,13 +15,13 @@ export default class MigrateCaptainDuckDuck {
         private authenticator: Authenticator
     ) {
         this.oldFilePath = path.join(
-            CaptainConstants.captainDataDirectory,
+            DockStationConstants.dockstationDataDirectory,
             'config.conf'
         )
     }
     migrateIfNeeded() {
         // TODO ensure this is all happening
-        // Captain Boots-up
+        // DockStation Boots-up
         // - Check if old conf file is available
         // - if so, then read json file and convert the old data into new data and save the data
         // - one all promises are done.
@@ -56,7 +56,7 @@ export default class MigrateCaptainDuckDuck {
             .then(function (data) {
                 return fs.readJson(
                     path.join(
-                        CaptainConstants.captainDataDirectory,
+                        DockStationConstants.dockstationDataDirectory,
                         'config.conf'
                     )
                 )
@@ -102,11 +102,11 @@ export default class MigrateCaptainDuckDuck {
                     )
                 }
 
-                if (oldData.NGINX_BASE_CONFIG || oldData.NGINX_CAPTAIN_CONFIG) {
+                if (oldData.NGINX_BASE_CONFIG || oldData.NGINX_DOCKSTATION_CONFIG) {
                     promises.push(
                         dataStore.setNginxConfig(
                             oldData.NGINX_BASE_CONFIG,
-                            oldData.NGINX_CAPTAIN_CONFIG
+                            oldData.NGINX_DOCKSTATION_CONFIG
                         )
                     )
                 }
@@ -119,15 +119,15 @@ export default class MigrateCaptainDuckDuck {
             })
             .then(function () {
                 const oldData = self.oldData
-                if (!oldData.captainRegistryAuthSecretVer) {
+                if (!oldData.dockstationRegistryAuthSecretVer) {
                     return Promise.resolve()
                 }
 
                 const authObj = JSON.parse(
                     fs
                         .readFileSync(
-                            `/run/secrets/captain-reg-auth${Number(
-                                oldData.captainRegistryAuthSecretVer
+                            `/run/secrets/dockstation-reg-auth${Number(
+                                oldData.dockstationRegistryAuthSecretVer
                             )}`
                         )
                         .toString()
@@ -137,7 +137,7 @@ export default class MigrateCaptainDuckDuck {
 
                 if (
                     (authObj.serveraddress as string).endsWith(
-                        `${oldData.customDomain}:${CaptainConstants.configs.registrySubDomainPort}` as string
+                        `${oldData.customDomain}:${DockStationConstants.configs.registrySubDomainPort}` as string
                     )
                 ) {
                     // local
@@ -185,7 +185,7 @@ export default class MigrateCaptainDuckDuck {
                         const element = dockerServices[i]
                         if (
                             element.Spec.Name ===
-                            'srv-captain--' + appNameToSearch
+                            'srv-dockstation--' + appNameToSearch
                         ) {
                             return element.Spec.TaskTemplate.ContainerSpec.Image
                         }
@@ -272,7 +272,7 @@ export default class MigrateCaptainDuckDuck {
                                             element.version
                                         )
 
-                                        let deployedImageName = `img-captain--${appName}:${thisVersion}`
+                                        let deployedImageName = `img-dockstation--${appName}:${thisVersion}`
 
                                         if (thisVersion === deployedVersion) {
                                             deployedImageName =
@@ -324,7 +324,7 @@ export default class MigrateCaptainDuckDuck {
                                         appName,
                                         '',
                                         Number(app.instanceCount),
-                                        CaptainConstants.defaultCaptainDefinitionPath,
+                                        DockStationConstants.defaultDockStationDefinitionPath,
                                         app.envVars || [],
                                         app.volumes || [],
                                         [],

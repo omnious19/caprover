@@ -4,11 +4,11 @@
 |------------------|          |      Assign the final Image     |                +--------------------+
 ||                ||          |        (library/mysql           +----------------+   Retag and push   +<-----------+
 ||    Update      |-----------+             or                  |                |     IF NEEDED      |            |
-||Captain Service ||          |  repo.com:996/captain/myimage)  |                +--------------------+            |
+||DockStation Service ||          |  repo.com:996/dockstation/myimage)  |                +--------------------+            |
 ||                ||          |                                 |                                                  |
 |------------------|          |     as new ver's image          +-----------+                                      +
 +------------------+          |                                 |           |                                    CREATE
-                              +---------------------------------+           |                             img-captain--appname:5
+                              +---------------------------------+           |                             img-dockstation--appname:5
                               |                                 |           |
                               |    Set the Deployed Version     |           +-------------+                         ^
                               +---------------------------------+                         |                         |
@@ -21,7 +21,7 @@
                                                           |                       |                                 |
                                                           +-----------------------+                                 |
        +-------------------+                              |                       |                                 |
-       |                   |                              |    captain-definition +-------------+                   |
+       |                   |                              |    dockstation-definition +-------------+                   |
        |                   |                              |         content       |             |                   |
        |   ServiceManager  +----> CreateNewVersion +----> +-----------------------+             |                   |
        |                   |                              |                       |             ^                   |
@@ -42,7 +42,7 @@ import ApiStatusCodes from '../api/ApiStatusCodes'
 import DockerApi from '../docker/DockerApi'
 import { IBuiltImage } from '../models/IBuiltImage'
 import { AnyError } from '../models/OtherTypes'
-import CaptainConstants from '../utils/CaptainConstants'
+import DockStationConstants from '../utils/DockStationConstants'
 import GitHelper from '../utils/GitHelper'
 import BuildLog from './BuildLog'
 import DockerRegistryHelper from './DockerRegistryHelper'
@@ -64,7 +64,7 @@ export class BuildLogsManager {
 
         self.buildLogs[appName] =
             self.buildLogs[appName] ||
-            new BuildLog(CaptainConstants.configs.buildLogSize)
+            new BuildLog(DockStationConstants.configs.buildLogSize)
 
         return self.buildLogs[appName]
     }
@@ -81,7 +81,7 @@ export default class ImageMaker {
     }
 
     private getDirectoryForRawSource(appName: string, version: number) {
-        return `${CaptainConstants.captainRawSourceDirectoryBase}/${appName}/${version}`
+        return `${DockStationConstants.dockstationRawSourceDirectoryBase}/${appName}/${version}`
     }
 
     /**
@@ -90,7 +90,7 @@ export default class ImageMaker {
     ensureImage(
         imageSource: IImageSource,
         appName: string,
-        captainDefinitionRelativeFilePath: string,
+        dockstationDefinitionRelativeFilePath: string,
         appVersion: number,
         envVars: IAppEnvVar[]
     ): Promise<IBuiltImage> {
@@ -109,7 +109,7 @@ export default class ImageMaker {
         const tarFilePath = `${baseDir}/${TAR_FILE_NAME_READY_FOR_DOCKER}`
 
         const baseImageNameWithoutVerAndReg = `img-${this.namespace}-${
-            appName // img-captain-myapp
+            appName // img-dockstation-myapp
         }`
         let fullImageName = '' // repo.domain.com:998/username/reponame:8
 
@@ -118,46 +118,46 @@ export default class ImageMaker {
                 return self.extractContentIntoDestDirectory(
                     imageSource,
                     rawDir,
-                    captainDefinitionRelativeFilePath
+                    dockstationDefinitionRelativeFilePath
                 )
             })
             .then(function (gitHashFromImageSource) {
                 gitHash = gitHashFromImageSource
 
                 const includesGitCommitEnvVar = envVars.find(
-                    (envVar) => envVar.key === CaptainConstants.gitShaEnvVarKey
+                    (envVar) => envVar.key === DockStationConstants.gitShaEnvVarKey
                 )
 
                 if (gitHash && !includesGitCommitEnvVar) {
                     envVars.push({
-                        key: CaptainConstants.gitShaEnvVarKey,
+                        key: DockStationConstants.gitShaEnvVarKey,
                         value: gitHash,
                     })
                 }
 
                 // some users convert the directory into TAR instead of converting the content into TAR.
                 // we go one level deep and try to find the right directory.
-                // Also, they may have no captain-definition file, in that case, fall back to Dockerfile if exists.
-                return self.getAbsolutePathOfCaptainDefinition(
+                // Also, they may have no dockstation-definition file, in that case, fall back to Dockerfile if exists.
+                return self.getAbsolutePathOfDockStationDefinition(
                     rawDir,
-                    captainDefinitionRelativeFilePath
+                    dockstationDefinitionRelativeFilePath
                 )
             })
-            .then(function (captainDefinitionAbsolutePath) {
+            .then(function (dockstationDefinitionAbsolutePath) {
                 return self
-                    .getCaptainDefinition(captainDefinitionAbsolutePath)
-                    .then(function (captainDefinition) {
-                        if (captainDefinition.imageName) {
+                    .getDockStationDefinition(dockstationDefinitionAbsolutePath)
+                    .then(function (dockstationDefinition) {
+                        if (dockstationDefinition.imageName) {
                             logs.log(
-                                `An explicit image name was provided (${captainDefinition.imageName}). Therefore, no build process is needed.`
+                                `An explicit image name was provided (${dockstationDefinition.imageName}). Therefore, no build process is needed.`
                             )
 
                             logs.log(
-                                `Pulling this image: ${captainDefinition.imageName} This process might take a few minutes.`
+                                `Pulling this image: ${dockstationDefinition.imageName} This process might take a few minutes.`
                             )
 
                             const providedImageName =
-                                captainDefinition.imageName + ''
+                                dockstationDefinition.imageName + ''
 
                             return Promise.resolve() //
                                 .then(function () {
@@ -177,8 +177,8 @@ export default class ImageMaker {
                         }
 
                         return self.getBuildPushAndReturnImageName(
-                            captainDefinition,
-                            path.dirname(captainDefinitionAbsolutePath),
+                            dockstationDefinition,
+                            path.dirname(dockstationDefinitionAbsolutePath),
                             tarFilePath,
                             baseImageNameWithoutVerAndReg,
                             appName,
@@ -239,7 +239,7 @@ export default class ImageMaker {
     }
 
     private getBuildPushAndReturnImageName(
-        captainDefinition: ICaptainDefinition,
+        dockstationDefinition: IDockStationDefinition,
         correctedDirProvided: string,
         tarFilePath: string,
         baseImageNameWithoutVersionAndReg: string,
@@ -251,8 +251,8 @@ export default class ImageMaker {
         return Promise.resolve() //
             .then(function () {
                 return self
-                    .convertCaptainDefinitionToDockerfile(
-                        captainDefinition,
+                    .convertDockStationDefinitionToDockerfile(
+                        dockstationDefinition,
                         correctedDirProvided
                     )
                     .then(function () {
@@ -301,7 +301,7 @@ export default class ImageMaker {
     private extractContentIntoDestDirectory(
         source: IImageSource,
         destDirectory: string,
-        captainDefinitionRelativeFilePath: string
+        dockstationDefinitionRelativeFilePath: string
     ) {
         return Promise.resolve() //
             .then(function () {
@@ -312,7 +312,7 @@ export default class ImageMaker {
                 //
                 // If Repo then download.
                 //
-                // If captainDefinitionContent then create a directory and output to a directory
+                // If dockstationDefinitionContent then create a directory and output to a directory
                 //
                 // Else THROW ERROR
 
@@ -344,19 +344,19 @@ export default class ImageMaker {
                         })
                 }
 
-                const captainDefinitionContentSource =
-                    source.captainDefinitionContentSource
-                if (captainDefinitionContentSource) {
+                const dockstationDefinitionContentSource =
+                    source.dockstationDefinitionContentSource
+                if (dockstationDefinitionContentSource) {
                     return fs
                         .outputFile(
                             path.join(
                                 destDirectory,
-                                captainDefinitionRelativeFilePath
+                                dockstationDefinitionRelativeFilePath
                             ),
-                            captainDefinitionContentSource.captainDefinitionContent
+                            dockstationDefinitionContentSource.dockstationDefinitionContent
                         )
                         .then(function () {
-                            return captainDefinitionContentSource.gitHash
+                            return dockstationDefinitionContentSource.gitHash
                         })
                 }
                 // we should never get here!
@@ -379,30 +379,30 @@ export default class ImageMaker {
             })
     }
 
-    private getCaptainDefinition(captainDefinitionAbsolutePath: string) {
+    private getDockStationDefinition(dockstationDefinitionAbsolutePath: string) {
         return Promise.resolve() //
             .then(function () {
-                return fs.readJson(captainDefinitionAbsolutePath)
+                return fs.readJson(dockstationDefinitionAbsolutePath)
             })
-            .then(function (data: ICaptainDefinition) {
+            .then(function (data: IDockStationDefinition) {
                 if (!data) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_GENERIC,
-                        'Captain Definition File is empty!'
+                        'DockStation Definition File is empty!'
                     )
                 }
 
                 if (!data.schemaVersion) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_GENERIC,
-                        'Captain Definition version is empty!'
+                        'DockStation Definition version is empty!'
                     )
                 }
 
                 if (data.schemaVersion !== 2) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_GENERIC,
-                        'Captain Definition version is not supported! Read migration guides to schemaVersion 2'
+                        'DockStation Definition version is not supported! Read migration guides to schemaVersion 2'
                     )
                 }
 
@@ -418,7 +418,7 @@ export default class ImageMaker {
                 if (numberOfProperties !== 1) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_GENERIC,
-                        'One, and only one, of these properties should be present in captain-definition: templateId, imageName, dockerfilePath, or, dockerfileLines'
+                        'One, and only one, of these properties should be present in dockstation-definition: templateId, imageName, dockerfilePath, or, dockerfileLines'
                     )
                 }
 
@@ -426,13 +426,13 @@ export default class ImageMaker {
             })
     }
 
-    private convertCaptainDefinitionToDockerfile(
-        captainDefinition: ICaptainDefinition,
-        directoryWithCaptainDefinition: string
+    private convertDockStationDefinitionToDockerfile(
+        dockstationDefinition: IDockStationDefinition,
+        directoryWithDockStationDefinition: string
     ) {
         return Promise.resolve() //
             .then(function () {
-                const data = captainDefinition
+                const data = dockstationDefinition
                 if (data.templateId) {
                     return TemplateHelper.get().getDockerfileContentFromTemplateTag(
                         data.templateId
@@ -450,7 +450,7 @@ export default class ImageMaker {
                     return fs
                         .readFileSync(
                             path.join(
-                                directoryWithCaptainDefinition,
+                                directoryWithDockStationDefinition,
                                 data.dockerfilePath
                             )
                         )
@@ -469,35 +469,35 @@ export default class ImageMaker {
             })
             .then(function (dockerfileContent) {
                 return fs.outputFile(
-                    `${directoryWithCaptainDefinition}/${DOCKER_FILE}`,
+                    `${directoryWithDockStationDefinition}/${DOCKER_FILE}`,
                     dockerfileContent
                 )
             })
     }
 
-    private getAbsolutePathOfCaptainDefinition(
+    private getAbsolutePathOfDockStationDefinition(
         originalDirectory: string,
-        captainDefinitionRelativeFilePath: string
+        dockstationDefinitionRelativeFilePath: string
     ) {
         const self = this
 
-        function isCaptainDefinitionOrDockerfileInDir(dir: string) {
-            const captainDefinitionPossiblePath = path.join(
+        function isDockStationDefinitionOrDockerfileInDir(dir: string) {
+            const dockstationDefinitionPossiblePath = path.join(
                 dir,
-                captainDefinitionRelativeFilePath
+                dockstationDefinitionRelativeFilePath
             )
             return Promise.resolve()
                 .then(function () {
-                    return fs.pathExists(captainDefinitionPossiblePath)
+                    return fs.pathExists(dockstationDefinitionPossiblePath)
                 })
                 .then(function (exits) {
                     return (
                         !!exits &&
-                        fs.statSync(captainDefinitionPossiblePath).isFile()
+                        fs.statSync(dockstationDefinitionPossiblePath).isFile()
                     )
                 })
-                .then(function (captainDefinitionExists) {
-                    if (captainDefinitionExists) return true
+                .then(function (dockstationDefinitionExists) {
+                    if (dockstationDefinitionExists) return true
 
                     // Falling back to plain Dockerfile, check if it exists!
 
@@ -513,7 +513,7 @@ export default class ImageMaker {
                         .then(function (dockerfileExists) {
                             if (!dockerfileExists) return false
 
-                            const captainDefinitionDefault: ICaptainDefinition =
+                            const dockstationDefinitionDefault: IDockStationDefinition =
                                 {
                                     schemaVersion: 2,
                                     dockerfilePath: `./${DOCKER_FILE}`,
@@ -521,8 +521,8 @@ export default class ImageMaker {
 
                             return fs
                                 .outputFile(
-                                    captainDefinitionPossiblePath,
-                                    JSON.stringify(captainDefinitionDefault)
+                                    dockstationDefinitionPossiblePath,
+                                    JSON.stringify(dockstationDefinitionDefault)
                                 )
                                 .then(function () {
                                     return true
@@ -534,21 +534,21 @@ export default class ImageMaker {
         return Promise.resolve()
             .then(function () {
                 // make sure if you need to go to child directory
-                return isCaptainDefinitionOrDockerfileInDir(originalDirectory)
+                return isDockStationDefinitionOrDockerfileInDir(originalDirectory)
             })
             .then(function (exists) {
                 if (exists) return originalDirectory
 
                 // check if there is only one child
                 // check if it's a directory
-                // check if captain definition exists in it
+                // check if dockstation definition exists in it
                 // if so, return the child directory
                 return self
                     .getAllChildrenOfDirectory(originalDirectory)
                     .then(function (files) {
                         files = files || []
                         if (files.length === 1) {
-                            return isCaptainDefinitionOrDockerfileInDir(
+                            return isDockStationDefinitionOrDockerfileInDir(
                                 path.join(originalDirectory, files[0])
                             ) //
                                 .then(function (existsInChild) {
@@ -560,21 +560,21 @@ export default class ImageMaker {
 
                                     throw ApiStatusCodes.createError(
                                         ApiStatusCodes.STATUS_ERROR_GENERIC,
-                                        'Captain Definition file does not exist!'
+                                        'DockStation Definition file does not exist!'
                                     )
                                 })
                         }
 
                         throw ApiStatusCodes.createError(
                             ApiStatusCodes.STATUS_ERROR_GENERIC,
-                            'Captain Definition file does not exist!'
+                            'DockStation Definition file does not exist!'
                         )
                     })
             })
             .then(function (correctedRootDirectory) {
                 return path.join(
                     correctedRootDirectory,
-                    captainDefinitionRelativeFilePath
+                    dockstationDefinitionRelativeFilePath
                 )
             })
     }

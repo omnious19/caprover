@@ -1,5 +1,5 @@
 #!/bin/sh
-# ./dev-shell-to-dockstationsh captain-captain
+# ./dev-shell-to-dockstationsh dockstation-dockstation
 
 if ! [ $(id -u) = 0 ]; then
    echo "Must run as sudo or root"

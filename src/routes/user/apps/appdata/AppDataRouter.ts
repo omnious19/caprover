@@ -79,16 +79,16 @@ router.post(
 
         const appName = req.params.appName
         const isDetachedBuild = !!req.query.detached
-        const captainDefinitionContent =
-            (req.body.captainDefinitionContent || '') + ''
+        const dockstationDefinitionContent =
+            (req.body.dockstationDefinitionContent || '') + ''
         const gitHash = (req.body.gitHash || '') + ''
         const tarballSourceFilePath: string = req.file ? req.file.path : ''
 
-        if (!!tarballSourceFilePath === !!captainDefinitionContent) {
+        if (!!tarballSourceFilePath === !!dockstationDefinitionContent) {
             res.send(
                 new BaseApi(
                     ApiStatusCodes.ILLEGAL_OPERATION,
-                    'Either tarballfile or captainDefinitionContent should be present.'
+                    'Either tarballfile or dockstationDefinitionContent should be present.'
                 )
             )
             return
@@ -103,9 +103,9 @@ router.post(
                               gitHash,
                           }
                         : undefined,
-                    captainDefinitionContentSource: captainDefinitionContent
+                    dockstationDefinitionContentSource: dockstationDefinitionContent
                         ? {
-                              captainDefinitionContent,
+                              dockstationDefinitionContent,
                               gitHash,
                           }
                         : undefined,

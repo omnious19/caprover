@@ -14,8 +14,8 @@ import * as Injector from './injection/Injector'
 import DownloadRouter from './routes/download/DownloadRouter'
 import LoginRouter from './routes/login/LoginRouter'
 import UserRouter from './routes/user/UserRouter'
-import CaptainManager from './user/system/CaptainManager'
-import CaptainConstants from './utils/CaptainConstants'
+import DockStationManager from './user/system/DockStationManager'
+import DockStationConstants from './utils/DockStationConstants'
 import Logger from './utils/Logger'
 import Utils from './utils/Utils'
 
@@ -33,9 +33,9 @@ app.use(
     loggerMorgan('dev', {
         skip: function (req, res) {
             return (
-                req.originalUrl === CaptainConstants.healthCheckEndPoint ||
+                req.originalUrl === DockStationConstants.healthCheckEndPoint ||
                 req.originalUrl.startsWith(
-                    CaptainConstants.netDataRelativePath + '/'
+                    DockStationConstants.netDataRelativePath + '/'
                 )
             )
         },
@@ -49,13 +49,13 @@ app.use(
 )
 app.use(cookieParser())
 
-if (CaptainConstants.isDebug) {
+if (DockStationConstants.isDebug) {
     app.use('*', function (req, res, next) {
         res.setHeader('Access-Control-Allow-Origin', '*')
         res.setHeader('Access-Control-Allow-Credentials', 'true')
         res.setHeader(
             'Access-Control-Allow-Headers',
-            `${CaptainConstants.headerNamespace},${CaptainConstants.headerAuth},Content-Type`
+            `${DockStationConstants.headerNamespace},${DockStationConstants.headerAuth},Content-Type`
         )
 
         if (req.method === 'OPTIONS') {
@@ -95,15 +95,15 @@ app.use(express.static(path.join(__dirname, '../dist-frontend')))
 
 app.use(express.static(path.join(__dirname, 'public')))
 
-app.use(CaptainConstants.healthCheckEndPoint, function (req, res, next) {
-    res.send(CaptainManager.get().getHealthCheckUuid())
+app.use(DockStationConstants.healthCheckEndPoint, function (req, res, next) {
+    res.send(DockStationManager.get().getHealthCheckUuid())
 })
 
 //  ************  Beginning of reverse proxy 3rd party services  ****************************************
 
-app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
+app.use(DockStationConstants.netDataRelativePath, function (req, res, next) {
     if (
-        req.originalUrl.indexOf(CaptainConstants.netDataRelativePath + '/') !==
+        req.originalUrl.indexOf(DockStationConstants.netDataRelativePath + '/') !==
         0
     ) {
         const isRequestSsl =
@@ -112,7 +112,7 @@ app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
         const newUrl =
             (isRequestSsl ? 'https://' : 'http://') +
             req.get('host') +
-            CaptainConstants.netDataRelativePath +
+            DockStationConstants.netDataRelativePath +
             '/'
         res.redirect(302, newUrl)
         return
@@ -122,11 +122,11 @@ app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
 })
 
 app.use(
-    CaptainConstants.netDataRelativePath,
+    DockStationConstants.netDataRelativePath,
     Injector.injectUserUsingCookieDataOnly()
 )
 
-app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
+app.use(DockStationConstants.netDataRelativePath, function (req, res, next) {
     if (!InjectionExtractor.extractUserFromInjected(res)) {
         Logger.e('User not logged in for NetData')
         res.sendStatus(500)
@@ -145,7 +145,7 @@ httpProxy.on('error', function (err, req, resOriginal: http.ServerResponse) {
     })
 
     if (
-        (err + '').indexOf('getaddrinfo ENOTFOUND captain-netdata-container') >=
+        (err + '').indexOf('getaddrinfo ENOTFOUND dockstation-netdata-container') >=
         0
     ) {
         resOriginal.end(
@@ -156,7 +156,7 @@ httpProxy.on('error', function (err, req, resOriginal: http.ServerResponse) {
     }
 })
 
-app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
+app.use(DockStationConstants.netDataRelativePath, function (req, res, next) {
     if (Utils.isNotGetRequest(req)) {
         res.writeHead(401, {
             'Content-Type': 'text/plain',
@@ -166,7 +166,7 @@ app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
     }
 
     httpProxy.web(req, res, {
-        target: `http://${CaptainConstants.netDataContainerName}:19999`,
+        target: `http://${DockStationConstants.netDataContainerName}:19999`,
     })
 })
 
@@ -177,11 +177,11 @@ app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
 const API_PREFIX = '/api/'
 
 app.use(API_PREFIX + ':apiVersionFromRequest/', function (req, res, next) {
-    if (req.params.apiVersionFromRequest !== CaptainConstants.apiVersion) {
+    if (req.params.apiVersionFromRequest !== DockStationConstants.apiVersion) {
         res.send(
             new BaseApi(
                 ApiStatusCodes.STATUS_ERROR_GENERIC,
-                `This captain instance only accepts API ${CaptainConstants.apiVersion}`
+                `This dockstation instance only accepts API ${DockStationConstants.apiVersion}`
             )
         )
         return
@@ -189,8 +189,8 @@ app.use(API_PREFIX + ':apiVersionFromRequest/', function (req, res, next) {
 
     if (!InjectionExtractor.extractGlobalsFromInjected(res).initialized) {
         const response = new BaseApi(
-            ApiStatusCodes.STATUS_ERROR_CAPTAIN_NOT_INITIALIZED,
-            'Captain is not ready yet...'
+            ApiStatusCodes.STATUS_ERROR_DOCKSTATION_NOT_INITIALIZED,
+            'DockStation is not ready yet...'
         )
         res.send(response)
         return
@@ -200,14 +200,14 @@ app.use(API_PREFIX + ':apiVersionFromRequest/', function (req, res, next) {
 })
 
 // unsecured end points:
-app.use(API_PREFIX + CaptainConstants.apiVersion + '/login/', LoginRouter)
+app.use(API_PREFIX + DockStationConstants.apiVersion + '/login/', LoginRouter)
 app.use(
-    API_PREFIX + CaptainConstants.apiVersion + '/downloads/',
+    API_PREFIX + DockStationConstants.apiVersion + '/downloads/',
     DownloadRouter
 )
 
 // secured end points
-app.use(API_PREFIX + CaptainConstants.apiVersion + '/user/', UserRouter)
+app.use(API_PREFIX + DockStationConstants.apiVersion + '/user/', UserRouter)
 
 //  *********************  End of API End Points  *******************************************
 
@@ -225,10 +225,10 @@ app.use(function (err, req, res, next) {
 
 export default app
 
-export function initializeCaptainWithDelay() {
-    // Initializing with delay helps with debugging. Usually, docker didn't see the CAPTAIN service
+export function initializeDockStationWithDelay() {
+    // Initializing with delay helps with debugging. Usually, docker didn't see the DOCKSTATION service
     // if this was done without a delay
     setTimeout(function () {
-        CaptainManager.get().initialize()
+        DockStationManager.get().initialize()
     }, 1500)
 }

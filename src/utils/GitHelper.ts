@@ -4,7 +4,7 @@ import * as path from 'path'
 import * as git from 'simple-git/promise'
 import * as util from 'util'
 import * as uuid from 'uuid'
-import CaptainConstants from './CaptainConstants'
+import DockStationConstants from './DockStationConstants'
 import Logger from './Logger'
 import Utils from './Utils'
 const exec = util.promisify(childProcess.exec)
@@ -45,7 +45,7 @@ export default class GitHelper {
 
         if (sshKey) {
             const SSH_KEY_PATH = path.join(
-                CaptainConstants.captainRootDirectoryTemp,
+                DockStationConstants.dockstationRootDirectoryTemp,
                 uuid.v4()
             )
 
